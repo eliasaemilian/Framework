@@ -26,3 +26,8 @@ void Time::update()
 void Time::deInit()
 {
 }
+
+float Time::getTime()
+{
+	return _totalTime;
+}

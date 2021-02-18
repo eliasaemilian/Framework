@@ -11,7 +11,7 @@ class Material
 {
 public:
 	int init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader);
-	void render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix);
+	void render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time );
 	void deInit();
 
 	void setLight(ID3D11DeviceContext* pD3DDeviceContext, Light& lightData);
@@ -22,7 +22,7 @@ protected:
 	int createPixelShader(ID3D11Device* pD3DDevice, LPCWSTR pixelShader );
 	int createInputLayout(ID3D11Device* pD3DDevice, ID3DBlob* pBlob);
 	int createMatrixBuffer(ID3D11Device* pD3DDevice);
-	void setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix);
+	void setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time );
 	int createTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
 	int createCubeMapTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
 	int createPixelShaderBuffer(ID3D11Device* pD3DDevice);
@@ -44,6 +44,7 @@ protected:
 	{
 		XMFLOAT4X4 worldViewProjectionMatrix;
 		XMFLOAT4X4 worldMatrix;
+		//FLOAT time;
 	};
 
 	ID3D11Buffer* _pPixelShaderBuffer = nullptr;

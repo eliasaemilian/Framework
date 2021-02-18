@@ -1,6 +1,6 @@
 #include "Modelmporter.h"
 
-
+// -> [ http://www.rastertek.com/dx11tut08.html ]
 typedef struct
 {
 	float x, y, z;
@@ -14,11 +14,11 @@ typedef struct
 }FaceType;
 
 
-int Modelmporter::init( char* filename, int& vertexCount, Mesh& mesh )
+int Modelmporter::init( char* filename, Mesh& mesh )
 {
 	bool result;
 	//char filename[256];
-	int /*vertexCount,*/ textureCount, normalCount, faceCount;
+	int vertexCount, textureCount, normalCount, faceCount;
 	char garbage;
 
 
@@ -115,14 +115,15 @@ bool Modelmporter::ReadFileCounts( char* filename, int& vertexCount, int& textur
 bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, Mesh& mesh )
 {
 	VertexType* vertices, * texcoords, * normals;
-	FaceType* faces;
+	//FaceType* faces;
 	ifstream fin;
 	int vertexIndex, texcoordIndex, normalIndex, faceIndex, vIndex, tIndex, nIndex;
 	char input, input2;
 	ofstream fout;
 
-	vector<Vertex> verts;
 	vector<WORD> indices;
+	vector<Vertex> vertOUT;
+
 
 	// Initialize the four data structures.
 	vertices = new VertexType[vertexCount];
@@ -143,7 +144,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		return false;
 	}
 
-	faces = new FaceType[faceCount];
+	FaceType* faces = new FaceType[faceCount];
 	if (!faces)
 	{
 		return false;
@@ -176,49 +177,30 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 			// Read in the vertices.
 			if (input == ' ')
 			{
-				Vertex vert = Vertex(0,0,0);
-				verts.push_back( vert );
-				//verts[vertexIndex] = Vertex( vertexIndex, 0, 100 );
+				fin >> vertices[vertexIndex].x >> vertices[vertexIndex].y >> vertices[vertexIndex].z;
 
-				//fin >> vertices[vertexIndex].x >> vertices[vertexIndex].y >> vertices[vertexIndex].z;
-				fin >> verts[vertexIndex].position.x >> verts[vertexIndex].position.y >> verts[vertexIndex].position.z;
-
-				//fin >> vert.position.x >> vert.position.y >> vert.position.z;
-				//verts[vertexIndex] = vert;
 				// Invert the Z vertex to change to left hand system.
-				//vertices[vertexIndex].z = vertices[vertexIndex].z * -1.0f;
-				//vert.position.z = vert.position.z * -1.0f;
-				//verts[vertexIndex].position.z = verts[vertexIndex].position.z * -1.0f;
-				//verts.push_back( vert );
-
+				vertices[vertexIndex].z = vertices[vertexIndex].z * -1.0f;
 				vertexIndex++;
 			}
 
 			// Read in the texture uv coordinates.
 			if (input == 't')
 			{
-				//fin >> texcoords[texcoordIndex].x >> texcoords[texcoordIndex].y;
-				fin >> verts[texcoordIndex].uv.x >> verts[texcoordIndex].uv.y;
-				//fin >> verts[texcoordIndex].uv.x >> verts[texcoordIndex].uv.y;
-				// Invert the V texture coordinates to left hand system.
-				//texcoords[texcoordIndex].y = 1.0f - texcoords[texcoordIndex].y;
-				verts[texcoordIndex].uv.y = 1.0f - verts[texcoordIndex].uv.y;
-				//
-				//verts[texcoordIndex].uv.x = 0.0f;
-				//verts[texcoordIndex].uv.y = 0.0f;
+				fin >> texcoords[texcoordIndex].x >> texcoords[texcoordIndex].y;
 
+				// Invert the V texture coordinates to left hand system.
+				texcoords[texcoordIndex].y = 1.0f - texcoords[texcoordIndex].y;
 				texcoordIndex++;
 			}
 
 			// Read in the normals.
 			if (input == 'n')
 			{
-			//	fin >> normals[normalIndex].x >> normals[normalIndex].y >> normals[normalIndex].z;
-				fin >> verts[normalIndex].normal.x >> verts[normalIndex].normal.y >> verts[normalIndex].normal.z;
+				fin >> normals[normalIndex].x >> normals[normalIndex].y >> normals[normalIndex].z;
 				
 				// Invert the Z normal to change to left hand system.
-				//normals[normalIndex].z = normals[normalIndex].z * -1.0f;
-				verts[normalIndex].normal.z = verts[normalIndex].normal.z * -1.0f;
+				normals[normalIndex].z = normals[normalIndex].z * -1.0f;
 				normalIndex++;
 			}
 		}
@@ -231,27 +213,10 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 			{
 				WORD i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0, i6 = 0, i7 = 0, i8 = 0, i9 = 0;
 				// Read the face data in backwards to convert it to a left hand system from right hand system.
-				//fin >> faces[faceIndex].vIndex3 >> input2 >> faces[faceIndex].tIndex3 >> input2 >> faces[faceIndex].nIndex3
-				//	>> faces[faceIndex].vIndex2 >> input2 >> faces[faceIndex].tIndex2 >> input2 >> faces[faceIndex].nIndex2
-				//	>> faces[faceIndex].vIndex1 >> input2 >> faces[faceIndex].tIndex1 >> input2 >> faces[faceIndex].nIndex1;
-
-				fin >> i1 >> input2 >> i2 >> input2 >> i3
-					>> i4 >> input2 >> i5 >> input2 >> i6
-					>> i7 >> input2 >> i8 >> input2 >> i9;
-
-
-					// i1, i4, i7
-
-					indices.push_back( i1 );
-					//indices.push_back( i2 );
-					//indices.push_back( i3 );
-					indices.push_back( i4 );
-					//indices.push_back( i5 );
-					//indices.push_back( i6 );
-					indices.push_back( i7 );
-
-					//indices.push_back( i8 );
-					//indices.push_back( i9 );
+				fin >> faces[faceIndex].vIndex3 >> input2 >> faces[faceIndex].tIndex3 >> input2 >> faces[faceIndex].nIndex3
+					>> faces[faceIndex].vIndex2 >> input2 >> faces[faceIndex].tIndex2 >> input2 >> faces[faceIndex].nIndex2
+					>> faces[faceIndex].vIndex1 >> input2 >> faces[faceIndex].tIndex1 >> input2 >> faces[faceIndex].nIndex1;
+				
 				faceIndex++;
 			}
 		}
@@ -263,14 +228,6 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		}
 
 
-		// make only relevant for planes!
-		//for (UINT i = 1; i < verts.size(); i++)
-		//{
-		//	verts[i].normal.x = verts[0].normal.x;
-		//	verts[i].normal.y = verts[0].normal.y;
-		//}
-
-
 		// Start reading the beginning of the next line.
 		fin.get( input );
 	}
@@ -278,42 +235,75 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	// Close the file.
 	fin.close();
 
-	// Open the output file.
-	fout.open( "model.txt" );
 
-	// Write out the file header that our model format uses.
-	fout << "Vertex Count: " << ( faceCount * 3 ) << endl;
-	fout << endl;
-	fout << "Data:" << endl;
-	fout << endl;
-
+	int count = 0;
 	// Now loop through all the faces and output the three vertices for each face.
-	//for (int i = 0; i < faceIndex; i++)
-	//{
-	//	vIndex = faces[i].vIndex1 - 1;
-	//	tIndex = faces[i].tIndex1 - 1;
-	//	nIndex = faces[i].nIndex1 - 1;
+	for (int i = 0; i < faceIndex; i++)
+	{
 
-	//	fout << vertices[vIndex].x << ' ' << vertices[vIndex].y << ' ' << vertices[vIndex].z << ' '
-	//		<< texcoords[tIndex].x << ' ' << texcoords[tIndex].y << ' '
-	//		<< normals[nIndex].x << ' ' << normals[nIndex].y << ' ' << normals[nIndex].z << endl;
+		vertOUT.push_back( Vertex( 0, 0, 0 ) );
+		vertOUT.push_back( Vertex( 0, 0, 0 ) );
+		vertOUT.push_back( Vertex( 0, 0, 0 ) );
 
-	//	vIndex = faces[i].vIndex2 - 1;
-	//	tIndex = faces[i].tIndex2 - 1;
-	//	nIndex = faces[i].nIndex2 - 1;
+		vIndex = faces[i].vIndex1 - 1;
+		tIndex = faces[i].tIndex1 - 1;
+		nIndex = faces[i].nIndex1 - 1;
 
-	//	fout << vertices[vIndex].x << ' ' << vertices[vIndex].y << ' ' << vertices[vIndex].z << ' '
-	//		<< texcoords[tIndex].x << ' ' << texcoords[tIndex].y << ' '
-	//		<< normals[nIndex].x << ' ' << normals[nIndex].y << ' ' << normals[nIndex].z << endl;
 
-	//	vIndex = faces[i].vIndex3 - 1;
-	//	tIndex = faces[i].tIndex3 - 1;
-	//	nIndex = faces[i].nIndex3 - 1;
+		vertOUT[count].position.x = vertices[vIndex].x;
+		vertOUT[count].position.y = vertices[vIndex].y;
+		vertOUT[count].position.z = vertices[vIndex].z;
 
-	//	fout << vertices[vIndex].x << ' ' << vertices[vIndex].y << ' ' << vertices[vIndex].z << ' '
-	//		<< texcoords[tIndex].x << ' ' << texcoords[tIndex].y << ' '
-	//		<< normals[nIndex].x << ' ' << normals[nIndex].y << ' ' << normals[nIndex].z << endl;
-	//}
+		vertOUT[count].uv.x = texcoords[tIndex].x;
+		vertOUT[count].uv.y = texcoords[tIndex].y;
+
+		vertOUT[count].normal.x = normals[nIndex].x;
+		vertOUT[count].normal.y = normals[nIndex].y;
+		vertOUT[count].normal.z = normals[nIndex].z;
+
+		indices.push_back( (WORD)count );
+		count++;
+
+		vIndex = faces[i].vIndex2 - 1;
+		tIndex = faces[i].tIndex2 - 1;
+		nIndex = faces[i].nIndex2 - 1;
+
+
+		vertOUT[count].position.x = vertices[vIndex].x;
+		vertOUT[count].position.y = vertices[vIndex].y;
+		vertOUT[count].position.z = vertices[vIndex].z;
+
+		vertOUT[count].uv.x = texcoords[tIndex].x;
+		vertOUT[count].uv.y = texcoords[tIndex].y;
+
+		vertOUT[count].normal.x = normals[nIndex].x;
+		vertOUT[count].normal.y = normals[nIndex].y;
+		vertOUT[count].normal.z = normals[nIndex].z;
+
+		indices.push_back( ( WORD )count );
+		count++;
+
+
+		vIndex = faces[i].vIndex3 - 1;
+		tIndex = faces[i].tIndex3 - 1;
+		nIndex = faces[i].nIndex3 - 1;
+
+
+		vertOUT[count].position.x = vertices[vIndex].x;
+		vertOUT[count].position.y = vertices[vIndex].y;
+		vertOUT[count].position.z = vertices[vIndex].z;
+
+		vertOUT[count].uv.x = texcoords[tIndex].x;
+		vertOUT[count].uv.y = texcoords[tIndex].y;
+
+		vertOUT[count].normal.x = normals[nIndex].x;
+		vertOUT[count].normal.y = normals[nIndex].y;
+		vertOUT[count].normal.z = normals[nIndex].z;
+
+		indices.push_back( ( WORD )count );
+		count++;
+
+	}
 
 	// Close the output file.
 	fout.close();
@@ -343,7 +333,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	}
 
 
-	mesh.SetVertices( verts, vertexCount );
+	mesh.SetVertices( vertOUT, vertOUT.size() );
 	mesh.SetIndices( indices, indices.size() );
 
 	return true;

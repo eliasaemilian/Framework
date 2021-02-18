@@ -1,4 +1,0 @@
-Vertex Count: 6
-
-Data:
-

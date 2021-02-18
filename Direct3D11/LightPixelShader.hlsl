@@ -33,7 +33,7 @@ float4 main(PixelInput IN) : SV_TARGET
     diffuse = max(diffuse, 0.0f); // dot product can be negative
     diffuse *= LightData.LightIntensity; // adjust light intensity by multiplicator
     
-    //return mainTextureColor * saturate(LightData.AmbientColor + LightData.DiffuseColor * diffuse);
+    return mainTextureColor * saturate(LightData.AmbientColor + LightData.DiffuseColor * diffuse);
     
-    return float4( 0.5f, 0.5f, 0.5f, 1.0f );
+   // return float4( 0.5f, 0.5f, 0.5f, 1.0f );
 }

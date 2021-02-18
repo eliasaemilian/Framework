@@ -11,7 +11,7 @@ using namespace std;
 class Modelmporter
 {
 public:
-	int init( char* filename, int& vertexCount, Mesh& mesh );
+	int init( char* filename, Mesh& mesh );
 	
 private:
 

@@ -9,8 +9,7 @@ public:
 	Gameobject();
 	void init( ID3D11Device* dx, ID3D11DeviceContext* dCon, Camera* cam, Material* pMat, Mesh* pMesh );
 	~Gameobject();
-	void render( ID3D11DeviceContext* dCon );
-	void render( ID3D11DeviceContext* dCon, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix );
+	void render( ID3D11DeviceContext* dCon, FLOAT time );
 	void SetPosition( XMFLOAT3 position );
 	void SetScale( XMFLOAT3 scale );
 	void SetWorldMatrix();

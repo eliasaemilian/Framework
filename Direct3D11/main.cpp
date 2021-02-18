@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "Gameobject.h"
 #include "Modelmporter.h"
+#include "Scene.h"
 //#include "Skybox.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int nCmdShow)
@@ -57,75 +58,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
 	// Create Gameobject
 	
 
-	// Plane test
-	Vertex planeVertices[] =
-	{
-		// quad - trianglestrip or trianglelist with index buffer
-		// position with normal & uv
-		Vertex( -1.0f, -0.2f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f ),
-		Vertex( 1.0f, -0.2f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f ),
-		Vertex( -1.0f, -0.2f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f ),
-		Vertex( 1.0f, -0.2f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f )
-
-	};
-
-	WORD planeIndices[] =
-	{
-		0, 1, 2,
-		1, 3, 2
-
-	};
-
-	Vertex cubeVerts[] =
-	{
-		Vertex ( -.3f, -.3f, -.3f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f ),
-		Vertex ( .3f, -.3f, -.3f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f ),
-		Vertex ( .3f, .3f, -.3f,		1.0f, 0.0f, -1.0f,		0.0f, 0.0f ),
-		Vertex ( -.3f, .3f, -.3f,		-1.0f, 0.0f, 0.0f,		0.0f, 0.0f ),
-		Vertex ( -.3f, -.3f, .3f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f ),
-		Vertex ( .3f, -.3f, .3f,		1.0f, 1.0f, 0.0f,		0.0f, 0.0f ),
-		Vertex ( .3f, .3f, .3f,			1.0f, 0.0f, 0.0f,		0.0f, 0.0f ),
-		Vertex ( -.3f, .3f, .3f,		1.0f, -1.0f, 0.0f,		0.0f, 0.0f ),
-
-	};
-
-	WORD cubeIndices[6 * 6] =
-	{
-		 1, 5, 0, 0, 5, 4,
-		 6, 2, 7, 7, 2, 3,
-		 3, 0, 7, 7, 0, 4,
-		 7, 4, 6, 6, 4, 5,
-		 6, 5, 2, 2, 5, 1,
-		 2, 1, 3, 3, 1, 0
-	};
-
-	//WORD cubeIndices[6 * 6] =
-	//{
-	//	0, 1, 3, 3, 1, 2,
-	//	1, 5, 2, 2, 5, 6,
-	//	5, 4, 6, 6, 4, 7,
-	//	4, 0, 7, 7, 0, 3,
-	//	3, 2, 7, 7, 2, 6,
-	//	4, 5, 0, 0, 5, 1
-	//};
-
-
-	Mesh plMesh;
-	plMesh.SetVertices( planeVertices, 4 );
-	plMesh.SetIndices( planeIndices, 6 );
-	plMesh.init( d3d.getDevice() );
-	Gameobject plane = {};
-	plane.init( d3d.getDevice(), d3d.getDeviceContext(), &camera, &material, &plMesh );
 	
-	Material cubeMat;
-	cubeMat.init( d3d.getDevice(), L"wall.jpg", L"LightVertexShader.hlsl", L"LightPixelShader.hlsl" );
-	Mesh cubeMesh;
-	cubeMesh.SetVertices( cubeVerts, 8 );
-	cubeMesh.SetIndices( cubeIndices, 6 * 6 );
-	cubeMesh.init( d3d.getDevice() );
 
-	Gameobject cube = {};
-	cube.init( d3d.getDevice(), d3d.getDeviceContext(), &camera, &cubeMat, &cubeMesh );
+
+	
+	
+
+	Material waterMat;
+	waterMat.init( d3d.getDevice(), L"waterTex.jpg", L"LightVertexShader.hlsl", L"LightPixelShader.hlsl" );
+
+
 
 	//// SKYBOX
 	//Skybox skybox;
@@ -137,13 +79,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
 	Mesh iMesh;
 	int vCount;
 	Modelmporter modelimporter;
-	modelimporter.init( (char*)"basicPlane.obj", vCount, iMesh);
+	modelimporter.init( (char*)"waterplane.obj", iMesh);
 	iMesh.init( d3d.getDevice() );
-	model.init( d3d.getDevice(), d3d.getDeviceContext(), &camera, &cubeMat, &iMesh );
-	//model.SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	model.SetScale( XMFLOAT3( 0.05f, 0.05f, 0.05f ) );
-	model.SetRotation( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+	model.init( d3d.getDevice(), d3d.getDeviceContext(), &camera, &waterMat, &iMesh );
+	model.SetPosition( XMFLOAT3( 0.0f, -1.5f, 2.0f ) );
+	//model.SetScale( XMFLOAT3( 0.05f, 0.05f, 0.05f ) );
+	model.SetScale( XMFLOAT3( 1.4f, 1.0f, 1.0f ) );
+	model.SetRotation( XMFLOAT3( -0.1f, 0.0f, 0.0f ) );
+
+	// SCENE
+
+	Scene scene = {};
+	scene.initGO( d3d.getDevice(), d3d.getDeviceContext(), &camera, ( char* )"waterplane.obj", &waterMat, XMFLOAT3( 0.0f, -1.5f, 2.0f ), XMFLOAT3( -0.1f, 0.0f, 0.0f ), XMFLOAT3( 1.4f, 1.0f, 1.0f ) );
+
+
+
+	// OBELISK
+	Material obMat;
+	obMat.init( d3d.getDevice(), L"Obelisk_low_Obelisk_BaseColor.png", L"LightVertexShader.hlsl", L"LightPixelShader.hlsl" );
+	Gameobject obelisk = {};
+	Mesh obMesh;
+	modelimporter.init( ( char* )"Obelisk2.obj", obMesh );
+	obMesh.init( d3d.getDevice() );
+	obelisk.init( d3d.getDevice(), d3d.getDeviceContext(), &camera, &obMat, &obMesh );
+	obelisk.SetRotation( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	obelisk.SetScale( XMFLOAT3( 0.08f, 0.08f, 0.08f ) );
+	obelisk.SetPosition( XMFLOAT3( 0.0f, -1.5f, 2.0f ) );
+
 	// 8. run application
+
 	while (true)
 	{
 		if (!window.run()) break;
@@ -153,14 +117,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
 	//	mesh.update(time.getDeltaTime());
 		plMesh.update(time.getDeltaTime());
 		cubeMesh.update( time.getDeltaTime() );
+		obelisk.update( time.getDeltaTime() );
 
-		iMesh.update( time.getDeltaTime() );
+		//iMesh.update( time.getDeltaTime() );
 
 		// 8.2. draw objects 
 		d3d.beginScene(0.0f, 0.0f, 0.0f);
 
 		//plane.render( d3d.getDeviceContext() );
-		model.render( d3d.getDeviceContext() );
+		model.render( d3d.getDeviceContext(), time.getTime() );
+		obelisk.render( d3d.getDeviceContext(), time.getTime() );
 		// rendering stuff
 
 		d3d.endScene();
@@ -170,8 +136,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
 	material.deInit();
 	time.deInit();
 	camera.deInit();
-	iMesh.deInit();
+	//iMesh.deInit();
 	plMesh.deInit();
+	obMesh.deInit();
 	cubeMesh.deInit();
 	d3d.deInit();
 	window.deInit();

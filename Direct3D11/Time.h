@@ -6,6 +6,7 @@ public:
 	void update();
 	void deInit();
 
+	float getTime();
 	float getDeltaTime() { return _deltaTime; }
 
 private:

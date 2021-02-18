@@ -31,13 +31,13 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  verte
 	return 0;
 }
 
-void Material::render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix)
+void Material::render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time )
 {
 	pD3DDeviceContext->IASetInputLayout(_pInputLayout);
 	pD3DDeviceContext->VSSetShader(_pVertexShader, nullptr, 0);
 	pD3DDeviceContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-	setMatrixBuffer(pD3DDeviceContext, worldMatrix, viewMatrix, projectionMatrix);
+	setMatrixBuffer(pD3DDeviceContext, worldMatrix, viewMatrix, projectionMatrix, time );
 
 	pD3DDeviceContext->PSSetShaderResources(0, 1, &_pMainTexture);
 	pD3DDeviceContext->PSSetSamplers(0, 1, &_pMainSampler);
@@ -157,7 +157,7 @@ int Material::createMatrixBuffer(ID3D11Device* pD3DDevice)
 	return 0;
 }
 
-void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* projection)
+void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* projection, FLOAT time)
 {
 	D3D11_MAPPED_SUBRESOURCE data = {};
 	HRESULT hr = pD3DDeviceContext->Map(_pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
@@ -167,6 +167,9 @@ void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X
 	XMMATRIX viewMatrix = XMLoadFloat4x4(view);
 	XMMATRIX projectionMatrix = XMLoadFloat4x4(projection);
 
+
+	XMVECTOR t = XMVectorSet( time, time, time, time );
+
 	XMMATRIX wvpMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	wvpMatrix = XMMatrixTranspose(wvpMatrix);
 	worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -174,6 +177,7 @@ void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X
 	MatrixBuffer* pBuffer = reinterpret_cast<MatrixBuffer*>(data.pData);
 	XMStoreFloat4x4(&pBuffer->worldViewProjectionMatrix, wvpMatrix);
 	XMStoreFloat4x4(&pBuffer->worldMatrix, worldMatrix);
+	//XMStoreFloat( &pBuffer->time, t );
 
 	pD3DDeviceContext->Unmap(_pMatrixBuffer, 0);
 
