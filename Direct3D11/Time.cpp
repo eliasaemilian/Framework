@@ -17,7 +17,7 @@ void Time::update()
 {
 	float actualTimestamp = timeGetTime() * 0.001f;
 	_deltaTime = actualTimestamp - _lastTimestamp;
-	_totalTime += _totalTime;
+	_totalTime += _deltaTime;
 	_lastTimestamp = actualTimestamp;
 
 

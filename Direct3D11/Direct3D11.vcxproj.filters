@@ -42,9 +42,6 @@
     <ClCompile Include="Gameobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Skybox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SkyboxMaterial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -89,9 +86,6 @@
     <ClInclude Include="Gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Skybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SkyboxMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,6 +107,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="waterTex.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Obelisk_low_Obelisk_Normal.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -139,6 +136,12 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="VS_WaterShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Skybox.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_Skybox.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

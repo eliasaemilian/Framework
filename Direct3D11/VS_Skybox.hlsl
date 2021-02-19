@@ -1,19 +1,40 @@
 
-struct SKYMAP_VS_OUTPUT    //output structure for skymap vertex shader
+cbuffer MatrixBuffer
 {
-    float4 Pos : SV_POSITION;
-    float3 texCoord : TEXCOORD;
+    float4x4 WorldViewProjectionMatrix;
+    float4x4 WorldMatrix;
+    float4 Time;
 };
 
 
-float4 main( float3 inPos : POSITION, float2 inTexCoord : TEXCOORD, float3 normal : NORMAL ) : SV_POSITION
+
+struct VS_INPUT
 {
-    SKYMAP_VS_OUTPUT output = ( SKYMAP_VS_OUTPUT ) 0;
+    float4 position : POSITION;
+    float2 uv : TEXCOORD;
+    float4 normal : NORMAL;
+};
 
-    //Set Pos to xyww instead of xyzw, so that z will always be 1 (furthest from camera)
-    output.Pos = mul( float4( inPos, 1.0f ), WVP ).xyww;
 
-    output.texCoord = inPos;
 
-    return output;
+struct VS_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float4 localPos : POSITION;
+};
+
+
+VS_OUTPUT main( VS_INPUT IN )
+{
+    VS_OUTPUT OUT;
+    
+    float4 pos = IN.position;
+    pos.w = 1.0f;
+    
+    OUT.position = mul( pos, WorldViewProjectionMatrix );
+    OUT.position.z = OUT.position.w * 0.999;
+    
+    OUT.localPos = pos;
+    
+	return OUT;
 }

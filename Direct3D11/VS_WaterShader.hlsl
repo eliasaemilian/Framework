@@ -4,7 +4,7 @@ cbuffer MatrixBuffer
 {
     float4x4 WorldViewProjectionMatrix;
     float4x4 WorldMatrix;
-    //float Time;
+    float4 Time;
 };
 
 struct VertexInput
@@ -35,7 +35,7 @@ VertexOutput main( VertexInput IN )
     
     float k = 2 * ( float ) PI / _Wavelength;
     
-    //pos.y += _Amplitude * sin( k * ( pos.x - _Speed * Time ) );
+    pos.y = _Amplitude * sin( k * ( pos.x - _Speed * Time ) );
     
     
     IN.position = float4( pos.xyz, IN.position.w );

@@ -177,7 +177,7 @@ void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X
 	MatrixBuffer* pBuffer = reinterpret_cast<MatrixBuffer*>(data.pData);
 	XMStoreFloat4x4(&pBuffer->worldViewProjectionMatrix, wvpMatrix);
 	XMStoreFloat4x4(&pBuffer->worldMatrix, worldMatrix);
-	//XMStoreFloat( &pBuffer->time, t );
+	XMStoreFloat4( &pBuffer->time, t );
 
 	pD3DDeviceContext->Unmap(_pMatrixBuffer, 0);
 

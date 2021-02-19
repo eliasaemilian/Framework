@@ -64,5 +64,6 @@ void Gameobject::update( float deltatime )
 
 Gameobject::~Gameobject()
 {
-
+	//mesh->deInit();
+	//material->deInit();
 }

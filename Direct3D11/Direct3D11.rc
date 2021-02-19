@@ -70,6 +70,14 @@ IDB_BITMAP1             BITMAP                  "bitmap1.bmp"
 
 IDR_TEXTURE1            Texture                 "waterTex.jpg"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG1                PNG                     "Obelisk_low_Obelisk_Normal.png"
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

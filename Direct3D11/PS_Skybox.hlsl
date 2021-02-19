@@ -1,13 +1,23 @@
-TextureCube SkyMap;
-SamplerState ObjSamplerState;
 
-struct SKYMAP_PS_INPUT    //output structure for skymap vertex shader
+TextureCube cubeMap;
+
+SamplerState skyboxSampler 
 {
-    float4 Pos : SV_POSITION;
-    float3 texCoord : TEXCOORD;
+    Filter = MIN_MAG_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
-float4 main( SKYMAP_PS_INPUT input ) : SV_TARGET
+
+struct PS_INPUT
 {
-    return SkyMap.Sample( ObjSamplerState, input.texCoord );
+    float4 position : SV_Position;
+    float4 localPos : POSITION;
+};
+
+
+float4 main(PS_INPUT IN) : SV_TARGET
+{
+    float4 res = cubeMap.Sample( skyboxSampler, IN.localPos.xyz );
+    return res;
 }
