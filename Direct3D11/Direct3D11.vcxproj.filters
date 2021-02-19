@@ -112,6 +112,9 @@
     <Image Include="Obelisk_low_Obelisk_Normal.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="water_normals.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ColorVertexShader.hlsl">

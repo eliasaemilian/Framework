@@ -6,9 +6,10 @@
 class Scene
 {
 public:
-	int init( ID3D11Device* dev, ID3D11DeviceContext* devCon, Camera* cam );
+	int init( ID3D11Device* dev, ID3D11DeviceContext* devCon, FLOAT width, FLOAT height );
 	void deInit();
 	void initLight();
+	void initCamera( FLOAT width, FLOAT height );
 	void initGO( int index, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale );
 	void initMesh( char* filenameModel );
 	void initMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );

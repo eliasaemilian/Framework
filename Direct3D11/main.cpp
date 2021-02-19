@@ -14,74 +14,59 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 1024
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int nCmdShow)
+int CALLBACK WinMain( 
+	_In_	 HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance, 
+	_In_	 LPSTR     lpCmdLine, 
+	_In_	 int       nCmdShow )
 {
 	INT width = SCREEN_WIDTH;
 	INT height = SCREEN_HEIGHT;
 	bool isWindowed = true;
 
-	// 1. create window
+	// INIT WINDOW
 	Window window;
-	int error = window.init(hInstance, width, height, nCmdShow);
+	int error = window.init( hInstance, width, height, nCmdShow );
 	if (error != 0) return error;
 
-	// 2. create Direct3D 11 interface
+	// INIT DIRECT X
 	D3D d3d;
-	error = d3d.init(window.getWindowHandle(), width, height, isWindowed);
+	error = d3d.init( window.getWindowHandle(), width, height, isWindowed );
 	if (error != 0) return error;
 
-
-	// 4. create camera
-	Camera camera;
-	error = camera.init(width, height);
-	if (error != 0) return error;
-
-	// 5. create time
+	// INIT TIME
 	Time time;
 	error = time.init();
 	if (error != 0) return error;
 
-
-
-	// SCENE
+	// INIT SCENE
 	Scene scene = {};
-	error = scene.init( d3d.getDevice(), d3d.getDeviceContext(), &camera );
+	error = scene.init( d3d.getDevice(), d3d.getDeviceContext(), width, height );
 	if (error != 0) return error;
 
 
-
-
-	// 8. run application
-
+	// MESSAGE LOOP
 	while (true)
 	{
 		if (!window.run()) break;
 
-		// 8.1. update objects
+		// UPDATE
 		time.update();
 		scene.update( time.getDeltaTime() );
 
-		// 8.2. draw objects 
-		d3d.beginScene(0.0f, 0.0f, 0.0f);
+		// CLEAR SCENE 
+		d3d.beginScene( 0.0f, 0.0f, 0.0f );
 
+		// RENDER CALL
 		scene.render( time.getTime() );
-		// rendering stuff
 
+		// SWITCH BUFFERS
 		d3d.endScene();
 	}
 
-	// 9. tidy up
+	// CLEAR MEMORY
 	scene.deInit();
 	time.deInit();
-	camera.deInit();
-	//obMesh.deInit();
-	
-	//  TODO: DEINIT ALL MATS, MESHES //
-
-	//mesh->deInit();
-	//material->deInit();
-
-
 	d3d.deInit();
 	window.deInit();
 

@@ -2,12 +2,14 @@
 #include "Modelmporter.h"
 #include "SkyboxMaterial.h"
 
-int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, Camera* cameraIN )
+int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, FLOAT width, FLOAT height )
 {
 	// STORE DEPENDENCIES
 	dev = devIN;
 	devCon = devConIN;
-	camera = cameraIN;
+
+	// INIT CAMERA
+	initCamera(width, height);
 
 	// INIT LIGHT
 	initLight();
@@ -18,14 +20,15 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, Camera* cam
 	initMesh( ( char* )"inSphere.obj" );
 
 	// INIT MATERIALS
-	initMaterial( L"waterTex.jpg", L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
+	initMaterial( L"water_normals.jpg", L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
 	initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"LightVertexShader.hlsl", L"LightPixelShader.hlsl" );
 	initDDSMaterial( L"cubemapSky.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
 
 	// INIT GAMEOBJECTS
-	initGO( 0, XMFLOAT3( 0.0f, -1.5f, 2.0f ), XMFLOAT3( -0.1f, 0.0f, 0.0f ), XMFLOAT3( 1.4f, 1.0f, 1.0f ) );
-	initGO( 1, XMFLOAT3( 0.0f, -1.5f, 2.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.08f, 0.08f, 0.08f ) );
-	initGO( 2, XMFLOAT3( 0.5f, -1.5f, 2.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.8f, 0.8f, 0.8f ) );
+	// INDEX	| POSITION					| ROTATION						| SCALE
+	initGO( 0, XMFLOAT3( 0.0f, -3.5f, 2.0f ), XMFLOAT3( -0.1f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );	// [ 0 ] WATER
+	initGO( 1, XMFLOAT3( 0.0f, -12.0f, 40.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );		// [ 1 ] OBELISK
+	initGO( 2, XMFLOAT3( 0.5f, -1.5f, 2.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.8f, 0.8f, 0.8f ) );		// [ 2 ] SKYBOX
 
 	return 0;
 
@@ -39,7 +42,6 @@ void Scene::initGO( int index, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale )
 	model->SetRotation( rot );
 	model->SetScale( scale );
 	model->SetPosition( pos );
-	
 }
 
 void Scene::initMesh( char* filenameModel )
@@ -70,9 +72,8 @@ void Scene::initDDSMaterial( LPCWSTR textureName, LPCWSTR vertexShader, LPCWSTR 
 	mat->setLight( devCon, *light );
 }
 
-void Scene::render(FLOAT time)
+void Scene::render( FLOAT time )
 {
-	// render for all GOS here
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->render( devCon, time );
@@ -81,7 +82,6 @@ void Scene::render(FLOAT time)
 
 void Scene::update( FLOAT deltatime )
 {
-	// update for all GOs here
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->update( deltatime );
@@ -90,6 +90,22 @@ void Scene::update( FLOAT deltatime )
 
 void Scene::SetGlobalBuffers()
 {
+	// TODO: SET GLOBAL SHADER PARAMS LIKE TIME, MATRIXBUFFERS HERE
+}
+
+void Scene::initLight()
+{
+	light = new Light();
+	light->LightDirection = { 0.0f, 1.0f, 0.0f };
+	light->AmbientColor = { 0.9f, 1.0f, 1.0f, 1.0f };
+	light->DiffuseColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	light->LightIntensity = 0.5f;
+}
+
+void Scene::initCamera( FLOAT width, FLOAT height )
+{
+	camera = new Camera();
+	camera->init( width, height );
 }
 
 void Scene::deInit()
@@ -99,14 +115,12 @@ void Scene::deInit()
 		delete sceneObjects[i];
 		meshes[i]->deInit();
 		delete meshes[i];
+		materials[i]->deInit();
+		delete materials[i];
 	}
-}
 
-void Scene::initLight()
-{
-	light = new Light();
-	light->LightDirection = { 0.0f, 0.0f, 1.0f };
-	light->AmbientColor = { 0.9f, 1.0f, 1.0f, 1.0f };
-	light->DiffuseColor = { 1.0f, 1.0f, 0.0f, 1.0f };
-	light->LightIntensity = 0.5f;
+	delete light;
+
+	camera->deInit();
+	delete camera;
 }

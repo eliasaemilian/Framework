@@ -1,4 +1,5 @@
 Texture2D MainTexture;
+Texture2D NormalMap;
 SamplerState MainSampler;
 
 struct Light
@@ -23,17 +24,40 @@ struct PixelInput
 
 float4 main( PixelInput IN ) : SV_TARGET
 {
-    float4 mainTextureColor = MainTexture.Sample( MainSampler, IN.uv );
+    //float4 mainTextureColor = MainTexture.Sample( MainSampler, IN.uv );
+    float3 normal = normalize( MainTexture.Sample( MainSampler, IN.uv ).xyz );
     
+    normal *= (  IN.normal );
+    normal = normalize( normal );
+
+    //return float4( normal, 1 );
+    
+    float4 albedo = float4( 0.133, 0.584, 0.827, 1 );
     float3 normalizedLight = normalize( LightData.LightDirection );
-    float3 normalizedNormal = normalize( IN.normal );
+   // float3 normalizedNormal = normalize( mainTextureColor );
     
     // diffuse light
-    float diffuse = dot( -normalizedLight, normalizedNormal ); // calculate light intensity
+   // float diffuse = dot( -normalizedLight, normalizedNormal ); // calculate light intensity
+    float diffuse = dot( -normalizedLight, normal ); // calculate light intensity
     diffuse = max( diffuse, 0.0f ); // dot product can be negative
     diffuse *= LightData.LightIntensity; // adjust light intensity by multiplicator
+  
+   // return float4( normalizedNormal, 1 );
     
-    return mainTextureColor * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
+    float3 lightDir = normalize( LightData.LightDirection );
     
-   // return float4( 0.5f, 0.5f, 0.5f, 1.0f );
+    // Direct diffuse Light
+    float lightFalloff = saturate( dot( lightDir, normal ) );
+    lightFalloff *= LightData.LightIntensity;
+    float3 directDiffuseLight = LightData.AmbientColor * lightFalloff;
+    
+    //return float4( directDiffuseLight, 1.0f );
+    
+    return albedo * saturate( float4( directDiffuseLight, 1 ) );
+    
+    
+    
+    return albedo * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
+    
+   
 }

@@ -1,5 +1,6 @@
 #include "Modelmporter.h"
 
+
 // -> [ http://www.rastertek.com/dx11tut08.html ]
 typedef struct
 {
@@ -17,38 +18,18 @@ typedef struct
 int Modelmporter::init( char* filename, Mesh& mesh )
 {
 	bool result;
-	//char filename[256];
 	int vertexCount, textureCount, normalCount, faceCount;
-	char garbage;
 
 
 	// Read in the number of vertices, tex coords, normals, and faces so that the data structures can be initialized with the exact sizes needed.
 	result = ReadFileCounts( filename, vertexCount, textureCount, normalCount, faceCount );
-	if (!result)
-	{
-		return -1;
-	}
+	if (!result) return -1;
 
-	// Display the counts to the screen for information purposes.
-	cout << endl;
-	cout << "Vertices: " << vertexCount << endl;
-	cout << "UVs:      " << textureCount << endl;
-	cout << "Normals:  " << normalCount << endl;
-	cout << "Faces:    " << faceCount << endl;
 
 	// Now read the data from the file into the data structures and then output it in our model format.
 	result = LoadDataStructures( filename, vertexCount, textureCount, normalCount, faceCount, mesh );
-	if (!result)
-	{
-		return -1;
-	}
+	if (!result) return -1;
 
-	// Notify the user the model has been converted.
-	cout << "\nFile has been converted." << endl;
-	cout << "\nDo you wish to exit (y/n)? ";
-	cin >> garbage;
-
-	
 
 	return 0;
 }
@@ -59,7 +40,6 @@ bool Modelmporter::ReadFileCounts( char* filename, int& vertexCount, int& textur
 {
 	ifstream fin;
 	char input;
-
 
 	// Initialize the counts.
 	vertexCount = 0;
@@ -114,31 +94,29 @@ bool Modelmporter::ReadFileCounts( char* filename, int& vertexCount, int& textur
 
 bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int textureCount, int normalCount, int faceCount, Mesh& mesh )
 {
-	VertexType* vertices, * texcoords, * normals;
-	//FaceType* faces;
 	ifstream fin;
 	int vertexIndex, texcoordIndex, normalIndex, faceIndex, vIndex, tIndex, nIndex;
 	char input, input2;
 	ofstream fout;
 
-	vector<WORD> indices;
-	vector<Vertex> vertOUT;
+	vector<WORD> indicesOUT;
+	vector<Vertex> verticesOUT;
 
 
 	// Initialize the four data structures.
-	vertices = new VertexType[vertexCount];
+	VertexType* vertices = new VertexType[vertexCount];
 	if (!vertices)
 	{
 		return false;
 	}
 
-	texcoords = new VertexType[textureCount];
+	VertexType* texcoords = new VertexType[textureCount];
 	if (!texcoords)
 	{
 		return false;
 	}
 
-	normals = new VertexType[normalCount];
+	VertexType* normals = new VertexType[normalCount];
 	if (!normals)
 	{
 		return false;
@@ -241,27 +219,27 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	for (int i = 0; i < faceIndex; i++)
 	{
 
-		vertOUT.push_back( Vertex( 0, 0, 0 ) );
-		vertOUT.push_back( Vertex( 0, 0, 0 ) );
-		vertOUT.push_back( Vertex( 0, 0, 0 ) );
+		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
+		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
+		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
 
 		vIndex = faces[i].vIndex1 - 1;
 		tIndex = faces[i].tIndex1 - 1;
 		nIndex = faces[i].nIndex1 - 1;
 
 
-		vertOUT[count].position.x = vertices[vIndex].x;
-		vertOUT[count].position.y = vertices[vIndex].y;
-		vertOUT[count].position.z = vertices[vIndex].z;
+		verticesOUT[count].position.x = vertices[vIndex].x;
+		verticesOUT[count].position.y = vertices[vIndex].y;
+		verticesOUT[count].position.z = vertices[vIndex].z;
 
-		vertOUT[count].uv.x = texcoords[tIndex].x;
-		vertOUT[count].uv.y = texcoords[tIndex].y;
+		verticesOUT[count].uv.x = texcoords[tIndex].x;
+		verticesOUT[count].uv.y = texcoords[tIndex].y;
 
-		vertOUT[count].normal.x = normals[nIndex].x;
-		vertOUT[count].normal.y = normals[nIndex].y;
-		vertOUT[count].normal.z = normals[nIndex].z;
+		verticesOUT[count].normal.x = normals[nIndex].x;
+		verticesOUT[count].normal.y = normals[nIndex].y;
+		verticesOUT[count].normal.z = normals[nIndex].z;
 
-		indices.push_back( (WORD)count );
+		indicesOUT.push_back( (WORD)count );
 		count++;
 
 		vIndex = faces[i].vIndex2 - 1;
@@ -269,18 +247,18 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		nIndex = faces[i].nIndex2 - 1;
 
 
-		vertOUT[count].position.x = vertices[vIndex].x;
-		vertOUT[count].position.y = vertices[vIndex].y;
-		vertOUT[count].position.z = vertices[vIndex].z;
+		verticesOUT[count].position.x = vertices[vIndex].x;
+		verticesOUT[count].position.y = vertices[vIndex].y;
+		verticesOUT[count].position.z = vertices[vIndex].z;
 
-		vertOUT[count].uv.x = texcoords[tIndex].x;
-		vertOUT[count].uv.y = texcoords[tIndex].y;
+		verticesOUT[count].uv.x = texcoords[tIndex].x;
+		verticesOUT[count].uv.y = texcoords[tIndex].y;
 
-		vertOUT[count].normal.x = normals[nIndex].x;
-		vertOUT[count].normal.y = normals[nIndex].y;
-		vertOUT[count].normal.z = normals[nIndex].z;
+		verticesOUT[count].normal.x = normals[nIndex].x;
+		verticesOUT[count].normal.y = normals[nIndex].y;
+		verticesOUT[count].normal.z = normals[nIndex].z;
 
-		indices.push_back( ( WORD )count );
+		indicesOUT.push_back( ( WORD )count );
 		count++;
 
 
@@ -289,18 +267,18 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		nIndex = faces[i].nIndex3 - 1;
 
 
-		vertOUT[count].position.x = vertices[vIndex].x;
-		vertOUT[count].position.y = vertices[vIndex].y;
-		vertOUT[count].position.z = vertices[vIndex].z;
+		verticesOUT[count].position.x = vertices[vIndex].x;
+		verticesOUT[count].position.y = vertices[vIndex].y;
+		verticesOUT[count].position.z = vertices[vIndex].z;
 
-		vertOUT[count].uv.x = texcoords[tIndex].x;
-		vertOUT[count].uv.y = texcoords[tIndex].y;
+		verticesOUT[count].uv.x = texcoords[tIndex].x;
+		verticesOUT[count].uv.y = texcoords[tIndex].y;
 
-		vertOUT[count].normal.x = normals[nIndex].x;
-		vertOUT[count].normal.y = normals[nIndex].y;
-		vertOUT[count].normal.z = normals[nIndex].z;
+		verticesOUT[count].normal.x = normals[nIndex].x;
+		verticesOUT[count].normal.y = normals[nIndex].y;
+		verticesOUT[count].normal.z = normals[nIndex].z;
 
-		indices.push_back( ( WORD )count );
+		indicesOUT.push_back( ( WORD )count );
 		count++;
 
 	}
@@ -333,8 +311,8 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	}
 
 
-	mesh.SetVertices( vertOUT, vertOUT.size() );
-	mesh.SetIndices( indices, indices.size() );
+	mesh.SetVertices( verticesOUT, verticesOUT.size() );
+	mesh.SetIndices( indicesOUT, indicesOUT.size() );
 
 	return true;
 }
