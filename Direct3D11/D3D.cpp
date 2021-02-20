@@ -1,5 +1,6 @@
 #include "D3D.h"
 #include "Utils.h"
+#include <d3d11_1.h>
 
 int D3D::init(HWND hWnd, INT width, INT height, bool isWindowed)
 {
@@ -83,6 +84,33 @@ int D3D::init(HWND hWnd, INT width, INT height, bool isWindowed)
     _viewPort.MinDepth = 0.0f;
     _viewPort.MaxDepth = 1.0f;
 
+    // CREATE BLENDSTATE
+    D3D11_BLEND_DESC BlendStateDesc;
+    ZeroMemory( &BlendStateDesc, sizeof( D3D11_BLEND_DESC ) );
+
+    D3D11_RENDER_TARGET_BLEND_DESC RenderTargetBlendDesc;
+    ZeroMemory( &RenderTargetBlendDesc, sizeof( D3D11_RENDER_TARGET_BLEND_DESC ) );
+
+    RenderTargetBlendDesc.BlendEnable = TRUE;
+    RenderTargetBlendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    RenderTargetBlendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    RenderTargetBlendDesc.BlendOp = D3D11_BLEND_OP_ADD;
+    RenderTargetBlendDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+    RenderTargetBlendDesc.DestBlendAlpha = D3D11_BLEND_ZERO;
+    RenderTargetBlendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    RenderTargetBlendDesc.RenderTargetWriteMask = 0x0f;
+
+    BlendStateDesc.AlphaToCoverageEnable = false;
+    BlendStateDesc.RenderTarget[0] = RenderTargetBlendDesc;
+    BlendStateDesc.RenderTarget[1] = RenderTargetBlendDesc;
+    BlendStateDesc.RenderTarget[2] = RenderTargetBlendDesc;
+
+    _pD3DDevice->CreateBlendState( &BlendStateDesc, &_pBlendState );
+
+    float bf[] = { 0.f,0.f,0.f,0.f };
+
+    _pD3DDeviceContext->OMSetBlendState( _pBlendState, bf, 0xffffffff );
+
     // 6. prepare the rendering pipeline
     _pD3DDeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView);
     _pD3DDeviceContext->RSSetState(_pRasterizerState);
@@ -113,4 +141,5 @@ void D3D::deInit()
     safeRelease<ID3D11Device>(_pD3DDevice);
     safeRelease<ID3D11DeviceContext>(_pD3DDeviceContext);
     safeRelease<IDXGISwapChain>(_pD3DSwapChain);
+    safeRelease<ID3D11BlendState>( _pBlendState );
 }

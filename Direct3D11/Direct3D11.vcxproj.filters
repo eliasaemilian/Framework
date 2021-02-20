@@ -51,6 +51,9 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlanarReflection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -96,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanarReflection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -147,6 +153,8 @@
     <FxCompile Include="VS_Skybox.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="VS_PlanarReflection.hlsl" />
+    <FxCompile Include="PS_PlanarReflections.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

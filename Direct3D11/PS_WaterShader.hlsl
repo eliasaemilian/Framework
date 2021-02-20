@@ -2,6 +2,8 @@ Texture2D MainTexture;
 Texture2D NormalMap;
 SamplerState MainSampler;
 
+
+
 struct Light
 {
     float3 LightDirection;
@@ -53,11 +55,11 @@ float4 main( PixelInput IN ) : SV_TARGET
     
     //return float4( directDiffuseLight, 1.0f );
     
-    return albedo * saturate( float4( directDiffuseLight, 1 ) );
     
     
     
-    return albedo * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
-    
-   
+    float4 res = albedo * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
+    res = albedo * saturate( float4( directDiffuseLight, 1 ) );
+
+    return float4( res.xyz, .95 );
 }

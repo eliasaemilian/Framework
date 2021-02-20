@@ -23,6 +23,9 @@ private:
 	ID3D11RenderTargetView* _pRenderTargetView = nullptr; // target to render on (here back buffer)
 	ID3D11DepthStencilView* _pDepthStencilView = nullptr; // reference to depth & stencil buffer
 	ID3D11RasterizerState* _pRasterizerState = nullptr; // properties for rasterizer stage
+	ID3D11BlendState* _pBlendState = nullptr;
+
 	D3D11_VIEWPORT _viewPort = {};
+
 };
 

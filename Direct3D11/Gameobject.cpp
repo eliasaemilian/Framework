@@ -20,9 +20,9 @@ void Gameobject::init( ID3D11Device* dx, ID3D11DeviceContext* dContext, Camera* 
 }
 
 
-void Gameobject::render( ID3D11DeviceContext* dCon, FLOAT time )
+void Gameobject::render( ID3D11DeviceContext* dCon, FLOAT time, Material::MaterialBuffer* mBuffer )
 {
-	material->render( dCon, getWorldMatrix(), camera->getViewMatrix(), camera->getProjectionMatrix(), time );
+	material->render( dCon, getWorldMatrix(), camera->getViewMatrix(), camera->getProjectionMatrix(), time, mBuffer );
 	mesh->render( dCon );
 }
 

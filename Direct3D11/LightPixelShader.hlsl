@@ -15,6 +15,8 @@ cbuffer MatrixBuffer
 {
     float4x4 WorldViewProjectionMatrix;
     float4x4 WorldMatrix;
+    float4x4 ReflectionMatrix;
+
     float4 Time;
 };
 
@@ -45,9 +47,9 @@ float4 main(PixelInput IN) : SV_TARGET
     diffuse = max(diffuse, 0.0f); // dot product can be negative
     diffuse *= LightData.lightIntensity; // adjust light intensity by multiplicator
     
-    return mainTextureColor * saturate(LightData.AmbientColor + LightData.lightColor * diffuse);
+    float4 res = mainTextureColor * saturate(LightData.AmbientColor + LightData.lightColor * diffuse);
     
-    
+    return float4( res.xyz, 1 );
    
     
     //float lightDir = normalize( LightData.lightDirection );

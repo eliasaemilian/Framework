@@ -19,11 +19,18 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  verte
 	error = createPixelShader(pD3DDevice, pixelShader );
 	if (error != 0) return error;
 
-	error = createMatrixBuffer(pD3DDevice);
+	//error = createMatrixBuffer(pD3DDevice);
+	//if (error != 0) return error;
+
+	error = createMaterialBuffer( pD3DDevice );
 	if (error != 0) return error;
 
-	error = createTextureAndSampler(pD3DDevice, textureName);
-	if (error != 0) return error;
+	if (textureName != NULL)
+	{
+		error = createTextureAndSampler( pD3DDevice, textureName );
+		if (error != 0) return error;
+	}
+
 
 	error = createPixelShaderBuffer(pD3DDevice);
 	if (error != 0) return error;
@@ -31,13 +38,14 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  verte
 	return 0;
 }
 
-void Material::render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time )
+void Material::render(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix,FLOAT time,  MaterialBuffer* mBuf )
 {
 	pD3DDeviceContext->IASetInputLayout(_pInputLayout);
 	pD3DDeviceContext->VSSetShader(_pVertexShader, nullptr, 0);
 	pD3DDeviceContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-	setMatrixBuffer(pD3DDeviceContext, worldMatrix, viewMatrix, projectionMatrix, time );
+	//setMatrixBuffer(pD3DDeviceContext, worldMatrix, viewMatrix, projectionMatrix, time );
+	setMaterialBuffer(pD3DDeviceContext, &mBuf->PARAM_MATRIX_1, &mBuf->PARAM_MATRIX_2, &mBuf->PARAM_MATRIX_3, &mBuf->PARAM_MATRIX_4, &mBuf->PARAM_FLOAT4_1, &mBuf->PARAM_FLOAT4_2, &mBuf->PARAM_FLOAT4_3, &mBuf->PARAM_FLOAT4_4 );
 
 	pD3DDeviceContext->PSSetShaderResources(0, 1, &_pMainTexture);
 	pD3DDeviceContext->PSSetSamplers(0, 1, &_pMainSampler);
@@ -48,6 +56,7 @@ void Material::deInit()
 	safeRelease<ID3D11ShaderResourceView>(_pMainTexture);
 	safeRelease<ID3D11SamplerState>(_pMainSampler);
 	safeRelease<ID3D11Buffer>(_pMatrixBuffer);
+	safeRelease<ID3D11Buffer>(_pMaterialBuffer);
 	safeRelease<ID3D11VertexShader>(_pVertexShader);
 	safeRelease<ID3D11PixelShader>(_pPixelShader);
 	safeRelease<ID3D11InputLayout>(_pInputLayout);
@@ -157,6 +166,20 @@ int Material::createMatrixBuffer(ID3D11Device* pD3DDevice)
 	return 0;
 }
 
+int Material::createMaterialBuffer( ID3D11Device* pD3DDevice )
+{
+	D3D11_BUFFER_DESC desc = {};
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof( MaterialBuffer );
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	HRESULT hr = pD3DDevice->CreateBuffer( &desc, nullptr, &_pMaterialBuffer );
+	if (FAILED( hr )) return 46;
+
+	return 0;
+}
+
 void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* world, XMFLOAT4X4* view, XMFLOAT4X4* projection, FLOAT time)
 {
 	D3D11_MAPPED_SUBRESOURCE data = {};
@@ -182,6 +205,39 @@ void Material::setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X
 	pD3DDeviceContext->Unmap(_pMatrixBuffer, 0);
 
 	pD3DDeviceContext->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
+}
+
+void Material::setMaterialBuffer( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* m1, XMFLOAT4X4* m2, XMFLOAT4X4* m3, XMFLOAT4X4* m4, XMFLOAT4* f1, XMFLOAT4* f2, XMFLOAT4* f3, XMFLOAT4* f4 )
+{
+	D3D11_MAPPED_SUBRESOURCE data = {};
+	HRESULT hr = pD3DDeviceContext->Map( _pMaterialBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data );
+	if (FAILED( hr )) return;
+
+	XMMATRIX matrix1 = XMLoadFloat4x4( m1 );
+	XMMATRIX matrix2 = XMLoadFloat4x4( m2 );
+	XMMATRIX matrix3 = XMLoadFloat4x4( m3 );
+	XMMATRIX matrix4 = XMLoadFloat4x4( m4 );
+
+
+	XMVECTOR float1 = XMLoadFloat4( f1 );
+	XMVECTOR float2 = XMLoadFloat4( f2 );
+	XMVECTOR float3 = XMLoadFloat4( f3 );
+	XMVECTOR float4 = XMLoadFloat4( f4 );
+
+
+	MaterialBuffer* pBuffer = reinterpret_cast< MaterialBuffer* >( data.pData );
+	XMStoreFloat4x4( &pBuffer->PARAM_MATRIX_1, matrix1 );
+	XMStoreFloat4x4( &pBuffer->PARAM_MATRIX_2, matrix2 );
+	XMStoreFloat4x4( &pBuffer->PARAM_MATRIX_3, matrix3 );
+	XMStoreFloat4x4( &pBuffer->PARAM_MATRIX_4, matrix4 );
+	XMStoreFloat4( &pBuffer->PARAM_FLOAT4_1, float1 );
+	XMStoreFloat4( &pBuffer->PARAM_FLOAT4_2, float2 );
+	XMStoreFloat4( &pBuffer->PARAM_FLOAT4_3, float3 );
+	XMStoreFloat4( &pBuffer->PARAM_FLOAT4_4, float4 );
+
+	pD3DDeviceContext->Unmap( _pMaterialBuffer, 0 );
+
+	pD3DDeviceContext->VSSetConstantBuffers( 1, 1, &_pMaterialBuffer );
 }
 
 int Material::createTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName)

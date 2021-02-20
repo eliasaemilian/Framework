@@ -1,9 +1,9 @@
-#define PI 3.14159265359
 
 cbuffer MatrixBuffer
 {
     float4x4 WorldViewProjectionMatrix;
     float4x4 WorldMatrix;
+    float4x4 ReflectionMatrix;
     float4 Time;
 };
 

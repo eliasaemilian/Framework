@@ -9,7 +9,7 @@ public:
 	Gameobject();
 	void init( ID3D11Device* dx, ID3D11DeviceContext* dCon, Camera* cam, Material* pMat, Mesh* pMesh );
 	~Gameobject();
-	void render( ID3D11DeviceContext* dCon, FLOAT time );
+	void render( ID3D11DeviceContext* dCon, FLOAT time, Material::MaterialBuffer* mBuffer );
 	void SetPosition( XMFLOAT3 position );
 	void SetScale( XMFLOAT3 scale );
 	void SetWorldMatrix();
