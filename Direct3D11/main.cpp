@@ -41,7 +41,7 @@ int CALLBACK WinMain(
 
 	// INIT SCENE
 	Scene scene = {};
-	error = scene.init( d3d.getDevice(), d3d.getDeviceContext(), width, height );
+	error = scene.init( d3d.getDevice(), d3d.getDeviceContext(), d3d.getDepthStencilView(), width, height );
 	if (error != 0) return error;
 
 
@@ -58,6 +58,14 @@ int CALLBACK WinMain(
 		d3d.beginScene( 0.0f, 0.0f, 0.0f );
 
 		// RENDER CALL
+
+		scene.renderPrecall( time.getTime() );
+
+
+		// Reset the render target back to the original back buffer and not the render to texture anymore.
+		d3d.setBackBufferRenderTarget();
+
+
 		scene.render( time.getTime() );
 		// -> SPLIT THIS INTO RENDER SKYBOX, RENDER OPAQUES, RENDER TRANSPARENT, RENDER REFLECTION, RENDER SHADOWS
 

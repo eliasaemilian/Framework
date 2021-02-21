@@ -9,9 +9,16 @@ using namespace std;
 class PlanarReflection : public Material
 {
 public:
-	virtual void render( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* reflectionMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time, Material::MaterialBuffer* mBuffer ) override;
+	int initReflection( ID3D11Device* pD3DDevice );
+	void renderReflection ( ID3D11DeviceContext* pD3DDeviceContext, ID3D11DepthStencilView* depthStencilView, XMFLOAT4X4* reflectionMatrix );
+
+	ID3D11ShaderResourceView* getReflectionTexture() { return _pMainTexture; }
+
 
 private:
+
+	ID3D11RenderTargetView* m_renderTargetView; // <- this is where reflection gets rendered to OLD
+
 	ID3D11Buffer* _pReflectionBuffer = nullptr;
 	struct ReflectionBuffer
 	{

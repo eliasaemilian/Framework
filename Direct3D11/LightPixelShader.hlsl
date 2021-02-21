@@ -11,14 +11,7 @@ struct Light
     float4 lightColor;
 };
 
-cbuffer MatrixBuffer
-{
-    float4x4 WorldViewProjectionMatrix;
-    float4x4 WorldMatrix;
-    float4x4 ReflectionMatrix;
 
-    float4 Time;
-};
 
 cbuffer PixelShaderBuffer
 {

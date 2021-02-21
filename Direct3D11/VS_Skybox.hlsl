@@ -1,9 +1,20 @@
 
-cbuffer MatrixBuffer
+cbuffer Globals
 {
-    float4x4 WorldViewProjectionMatrix;
-    float4x4 WorldMatrix;
+    float4x4 CameraViewMatrix;
+    float4x4 CameraProjectionMatrix;
+
     float4 Time;
+};
+
+cbuffer MaterialData
+{
+    float4x4 WORLD_MATRIX;
+
+    float4 PARAM_FLOAT4_1;
+    float4 PARAM_FLOAT4_2;
+    float4 PARAM_FLOAT4_3;
+    float4 PARAM_FLOAT4_4;
 };
 
 
@@ -31,8 +42,12 @@ VS_OUTPUT main( VS_INPUT IN )
     float4 pos = IN.position;
     pos.w = 1.0f;
     
-    OUT.position = mul( pos, WorldViewProjectionMatrix );
-    OUT.position.z = OUT.position.w * 0.999;
+        
+    OUT.position = mul( IN.position, WORLD_MATRIX );
+    OUT.position = mul( OUT.position, CameraViewMatrix );
+    OUT.position = mul( OUT.position, CameraProjectionMatrix );
+        
+    OUT.position.z = OUT.position.w * 0.999; // putting this at close to end of the world, camera doesnt move but like whatever
     
     OUT.localPos = pos;
     

@@ -12,10 +12,7 @@ class Material
 public:
 	struct MaterialBuffer
 	{
-		XMFLOAT4X4 PARAM_MATRIX_1;
-		XMFLOAT4X4 PARAM_MATRIX_2;
-		XMFLOAT4X4 PARAM_MATRIX_3;
-		XMFLOAT4X4 PARAM_MATRIX_4;
+		XMFLOAT4X4 WORLD_MATRIX;
 
 		XMFLOAT4 PARAM_FLOAT4_1;
 		XMFLOAT4 PARAM_FLOAT4_2;
@@ -25,7 +22,7 @@ public:
 
 public:
 	int init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader);
-	virtual void render( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time , MaterialBuffer* mBuf );
+	virtual void render( ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mBuf );
 	void setLight(ID3D11DeviceContext* pD3DDeviceContext, Light& lightData);
 	void deInit();
 
@@ -34,10 +31,8 @@ protected:
 	int createVertexShader(ID3D11Device* pD3DDevice, LPCWSTR vertexShader );
 	int createPixelShader(ID3D11Device* pD3DDevice, LPCWSTR pixelShader );
 	int createInputLayout(ID3D11Device* pD3DDevice, ID3DBlob* pBlob);
-	int createMatrixBuffer(ID3D11Device* pD3DDevice);
 	int createMaterialBuffer(ID3D11Device* pD3DDevice );
-	void setMatrixBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4X4* viewMatrix, XMFLOAT4X4* projectionMatrix, FLOAT time );
-	void setMaterialBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* m1, XMFLOAT4X4* m2, XMFLOAT4X4* m3, XMFLOAT4X4* m4, XMFLOAT4* f1, XMFLOAT4* f2, XMFLOAT4* f3, XMFLOAT4* f4 );
+	void setMaterialBuffer(ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* mWorld, XMFLOAT4* f1, XMFLOAT4* f2, XMFLOAT4* f3, XMFLOAT4* f4 );
 	virtual int createTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
 	int createCubeMapTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
 	int createPixelShaderBuffer(ID3D11Device* pD3DDevice);
@@ -53,18 +48,8 @@ protected:
 	ID3D11ShaderResourceView* _pMainTexture = nullptr;
 	ID3D11SamplerState* _pMainSampler = nullptr;
 
-	// constant buffers
-	ID3D11Buffer* _pMatrixBuffer = nullptr;
-	struct MatrixBuffer
-	{
-		XMFLOAT4X4 worldViewProjectionMatrix;
-		XMFLOAT4X4 worldMatrix;
-		XMFLOAT4 time; // x -> Time.y, y -> deltaTime , zw -> padding
-	};
-
+	// BUFFERS
 	ID3D11Buffer* _pMaterialBuffer = nullptr;
-
-
 	ID3D11Buffer* _pPixelShaderBuffer = nullptr;
 	struct PixelShaderBuffer
 	{

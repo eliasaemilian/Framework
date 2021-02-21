@@ -11,9 +11,11 @@ public:
 	void beginScene(FLOAT red, FLOAT green, FLOAT blue);
 	void endScene();
 	void deInit();
+	void setBackBufferRenderTarget();
 
 	ID3D11Device* getDevice() { return _pD3DDevice; }
 	ID3D11DeviceContext* getDeviceContext() { return _pD3DDeviceContext; }
+	ID3D11DepthStencilView* getDepthStencilView() { return _pDepthStencilView; }
 
 private:
 	// COM - Component Object Model

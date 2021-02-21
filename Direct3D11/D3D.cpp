@@ -143,3 +143,10 @@ void D3D::deInit()
     safeRelease<IDXGISwapChain>(_pD3DSwapChain);
     safeRelease<ID3D11BlendState>( _pBlendState );
 }
+
+void D3D::setBackBufferRenderTarget()
+{
+    _pD3DDeviceContext->OMSetRenderTargets( 1, &_pRenderTargetView, _pDepthStencilView );
+
+
+}

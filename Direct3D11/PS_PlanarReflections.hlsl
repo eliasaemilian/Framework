@@ -3,27 +3,20 @@ SamplerState MainSampler;
 
 Texture2D ReflectionTexture;
 
-struct Light
-{
-    float3 lightDirection;
-    float lightIntensity;
-    float4 AmbientColor;
-    float4 lightColor;
-};
 
-cbuffer MatrixBuffer
+cbuffer Globals
 {
-    float4x4 WorldViewProjectionMatrix;
-    float4x4 WorldMatrix;
-    float4x4 ReflectionMatrix;
+    float4x4 CameraViewMatrix;
+    float4x4 CameraProjectionMatrix;
 
     float4 Time;
 };
 
-cbuffer PixelShaderBuffer
+cbuffer ReflectionMatrix
 {
-    Light LightData;
+    float4x4 REFLECTION_MATRIX;
 };
+
 
 float3 WorldCamPos;
 

@@ -1,10 +1,20 @@
 
-cbuffer MatrixBuffer
+cbuffer Globals
 {
-    float4x4 WorldViewProjectionMatrix;
-    float4x4 WorldMatrix;
-    float4x4 ReflectionMatrix;
+    float4x4 CameraViewMatrix;
+    float4x4 CameraProjectionMatrix;
+
     float4 Time;
+};
+
+cbuffer MaterialData
+{
+    float4x4 WORLD_MATRIX;
+
+    float4 PARAM_FLOAT4_1;
+    float4 PARAM_FLOAT4_2;
+    float4 PARAM_FLOAT4_3;
+    float4 PARAM_FLOAT4_4;
 };
 
 struct VertexInput
@@ -37,11 +47,20 @@ VertexOutput main(VertexInput IN)
     
     
     IN.position = float4( pos.xyz, IN.position.w );
-    OUT.position = mul(IN.position, WorldViewProjectionMatrix);
+    
+    //float4x4 mvp = mul( WORLD_MATRIX, CameraViewMatrix );
+    //mvp = mul( CameraProjectionMatrix, mvp );
+    
+    //OUT.position = mul(IN.position, mvp);
+    
+    OUT.position = mul( IN.position, WORLD_MATRIX );
+    OUT.position = mul( OUT.position, CameraViewMatrix );
+    OUT.position = mul( OUT.position, CameraProjectionMatrix );
+    
     OUT.uv = IN.uv;
     
     IN.normal.w = 0.0f;
-    OUT.normal = mul(IN.normal, WorldMatrix).xyz;
+    OUT.normal = mul(IN.normal, WORLD_MATRIX).xyz;
     
     return OUT;
 }

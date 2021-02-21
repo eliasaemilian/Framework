@@ -54,6 +54,9 @@
     <ClCompile Include="PlanarReflection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MirrorMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlanarReflection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MirrorMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

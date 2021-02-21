@@ -1,7 +1,9 @@
+//Texture2D NormalMap;
 Texture2D MainTexture;
-Texture2D NormalMap;
+
 SamplerState MainSampler;
 
+Texture2D ReflectionTexture;
 
 
 struct Light
@@ -26,7 +28,11 @@ struct PixelInput
 
 float4 main( PixelInput IN ) : SV_TARGET
 {
-    //float4 mainTextureColor = MainTexture.Sample( MainSampler, IN.uv );
+    float4 mainTextureColor = ReflectionTexture.Sample( MainSampler, IN.uv );
+    return mainTextureColor;
+    
+    
+    
     float3 normal = normalize( MainTexture.Sample( MainSampler, IN.uv ).xyz );
     
     normal *= (  IN.normal );

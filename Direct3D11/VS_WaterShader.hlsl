@@ -1,11 +1,26 @@
 #define PI 3.14159265359
 
-cbuffer MatrixBuffer
+cbuffer Globals
 {
-    float4x4 WorldViewProjectionMatrix;
-    float4x4 WorldMatrix;
+    float4x4 CameraViewMatrix;
+    float4x4 CameraProjectionMatrix;
 
     float4 Time;
+};
+
+cbuffer MaterialData
+{
+    float4x4 WORLD_MATRIX;
+
+    float4 WAVE_1;
+    float4 WAVE_2;
+    float4 PARAM_FLOAT4_3;
+    float4 PARAM_FLOAT4_4;
+};
+
+cbuffer ReflectionMatrix
+{
+    float4x4 REFLECTION_MATRIX;
 };
 
 struct VertexInput
@@ -27,6 +42,13 @@ struct VertexOutput
 VertexOutput main( VertexInput IN )
 {
     VertexOutput OUT;
+    
+    //OUT.position = IN.position;
+    //OUT.normal = IN.normal;
+    //OUT.uv = IN.uv;
+    //return OUT;
+    
+    
     float _Amplitude = 0.2f;
     float _Amplitude2 = 0.01f;
     float _Wavelength = 2.0f;
@@ -52,11 +74,15 @@ VertexOutput main( VertexInput IN )
     float4 normal = float4( -tangent.y, tangent.x, 0, 0 );
     
     IN.position = float4( pos.xyz, IN.position.w );
-    OUT.position = mul( IN.position, WorldViewProjectionMatrix );
+    
+    OUT.position = mul( IN.position, WORLD_MATRIX );
+    OUT.position = mul( OUT.position, CameraViewMatrix );
+    OUT.position = mul( OUT.position, CameraProjectionMatrix );
+    
     OUT.uv = IN.uv;
     
     IN.normal.w = 0.0f;
-    OUT.normal = normalize( mul( normal, WorldMatrix ).xyz );
+    OUT.normal = normalize( mul( normal, WORLD_MATRIX ).xyz );
     
     return OUT;
 }
