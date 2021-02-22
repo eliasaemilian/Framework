@@ -1,1 +1,4 @@
-WATER https://3dtextures.me/2018/11/29/water-002/
+WATER
+
+MAIN TEXTURE https://www.deviantart.com/berserkitty/art/Seamless-Cartoon-styled-Water-Texture-743787929
+NORMAL MAP https://3dtextures.me/2018/11/29/water-002/

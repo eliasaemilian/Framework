@@ -1,9 +1,12 @@
-//Texture2D NormalMap;
-Texture2D MainTexture;
 
+
+
+Texture2D MainTexture : register( t0 );
 SamplerState MainSampler;
 
-Texture2D ReflectionTexture;
+Texture2D ReflectionTexture : register( t1 );
+
+Texture2D NormalMap : register( t2 );
 
 
 struct Light
@@ -24,16 +27,31 @@ struct PixelInput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float3 normal : NORMAL;
+    float4 reflection : TEXCOORD1;
 };
 
 float4 main( PixelInput IN ) : SV_TARGET
 {
-    float4 mainTextureColor = ReflectionTexture.Sample( MainSampler, IN.uv );
-    return mainTextureColor;
+    
+    // COLOR 
+    
+    float4 textureColor;
+    float2 rUV;
+    float4 rColor;
+    float4 color;
+    
+    textureColor = MainTexture.Sample( MainSampler, IN.uv );
+    // map UVS to 0 - 1 Range
+    rUV.x = IN.reflection.x / IN.reflection.w / 2 + .5;
+    rUV.y = - IN.reflection.y / IN.reflection.w / 2 + .5;
+    // get pixel pos with reflection uvs
+    rColor = ReflectionTexture.Sample( MainSampler, rUV );
+    
+    // blend with rest
+    color = lerp( textureColor, rColor, .65 ); // replace t with reflection strength
     
     
-    
-    float3 normal = normalize( MainTexture.Sample( MainSampler, IN.uv ).xyz );
+    float3 normal = normalize( NormalMap.Sample( MainSampler, IN.uv ).xyz );
     
     normal *= (  IN.normal );
     normal = normalize( normal );
@@ -64,8 +82,8 @@ float4 main( PixelInput IN ) : SV_TARGET
     
     
     
-    float4 res = albedo * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
-    res = albedo * saturate( float4( directDiffuseLight, 1 ) );
+    float4 res = color * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
+    res = color * saturate( float4( directDiffuseLight, 1 ) );
 
-    return float4( res.xyz, .95 );
+    return float4( res.xyz, 1 );
 }

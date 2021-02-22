@@ -1,7 +1,7 @@
 #include "SkyboxMaterial.h"
 #include "DDSTextureLoader.h"
 
-int SkyboxMaterial::createTextureAndSampler( ID3D11Device* pD3DDevice, LPCWSTR textureName )
+int SkyboxMaterial::createMainTextureAndSampler( ID3D11Device* pD3DDevice, LPCWSTR textureName )
 {
 	HRESULT hr = CreateDDSTextureFromFile( pD3DDevice, textureName, nullptr, &_pMainTexture );
 	if (FAILED( hr )) return 48;

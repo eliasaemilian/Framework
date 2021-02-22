@@ -54,9 +54,6 @@
     <ClCompile Include="PlanarReflection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MirrorMaterial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -107,9 +104,6 @@
     <ClInclude Include="PlanarReflection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MirrorMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="wall.jpg">
@@ -125,6 +119,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="water_normals.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Obelisk_low_Obelisk_Roughness.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Obelisk_low_Obelisk_BaseColor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="comic_waterTex.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -161,6 +164,18 @@
     </FxCompile>
     <FxCompile Include="VS_PlanarReflection.hlsl" />
     <FxCompile Include="PS_PlanarReflections.hlsl" />
+    <FxCompile Include="VS_Obelisk.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Obelisk.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_Sphere.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Sphere.hlsl">
+      <Filter>Source Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

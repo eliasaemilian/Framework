@@ -11,8 +11,9 @@
 #include "Scene.h"
 #include "SkyboxMaterial.h"
 
-#define SCREEN_WIDTH 1280
+#define SCREEN_WIDTH  1280
 #define SCREEN_HEIGHT 1024
+
 
 int CALLBACK WinMain( 
 	_In_	 HINSTANCE hInstance,
@@ -55,7 +56,7 @@ int CALLBACK WinMain(
 		scene.update( time.getDeltaTime() );
 
 		// CLEAR SCENE 
-		d3d.beginScene( 0.0f, 0.0f, 0.0f );
+		d3d.clearRenderTarget( 0.0f, 0.0f, 0.0f );
 
 		// RENDER CALL
 
@@ -64,9 +65,15 @@ int CALLBACK WinMain(
 
 		// Reset the render target back to the original back buffer and not the render to texture anymore.
 		d3d.setBackBufferRenderTarget();
+		d3d.clearRenderTarget( 0.0f, 0.0f, 0.0f );
 
 
 		scene.render( time.getTime() );
+
+		d3d.disableDrawToDepthStencil();
+
+		scene.renderZWriteOff( time.getTime() );
+
 		// -> SPLIT THIS INTO RENDER SKYBOX, RENDER OPAQUES, RENDER TRANSPARENT, RENDER REFLECTION, RENDER SHADOWS
 
 		// SWITCH BUFFERS

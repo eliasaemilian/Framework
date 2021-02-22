@@ -35,6 +35,8 @@ struct VertexOutput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float3 normal : NORMAL;
+    float4 reflection : TEXCOORD1;
+
 };
 
 
@@ -47,6 +49,24 @@ VertexOutput main( VertexInput IN )
     //OUT.normal = IN.normal;
     //OUT.uv = IN.uv;
     //return OUT;
+    
+    // calc reflection uvs
+    
+    // get world matrix for reflection
+    float4x4 projectReflectWorld = mul( REFLECTION_MATRIX, CameraProjectionMatrix );
+    projectReflectWorld = mul( WORLD_MATRIX, projectReflectWorld );
+
+    // calculate positoin against PRW
+    //OUT.reflection = mul( IN.position, projectReflectWorld );
+    
+    OUT.reflection = mul( IN.position, WORLD_MATRIX );
+    OUT.reflection = mul( OUT.reflection, REFLECTION_MATRIX );
+    OUT.reflection = mul( OUT.reflection, CameraProjectionMatrix );
+    
+    float4x4 reflectProjectWorld = mul( REFLECTION_MATRIX, CameraProjectionMatrix );
+    reflectProjectWorld = mul( WORLD_MATRIX, reflectProjectWorld );
+    OUT.reflection = mul( IN.position, reflectProjectWorld );
+    // END
     
     
     float _Amplitude = 0.2f;

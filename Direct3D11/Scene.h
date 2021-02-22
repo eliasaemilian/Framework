@@ -9,33 +9,38 @@
 class Scene
 {
 public:
+	// SCENE INITIALIZATION
 	int init( ID3D11Device* dev, ID3D11DeviceContext* devCon, ID3D11DepthStencilView* depthStencilView, FLOAT width, FLOAT height );
-	void deInit();
+	// init system
 	void initLight();
 	void initCamera( FLOAT width, FLOAT height );
-	void initGO( int index, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale, XMFLOAT4 matData_FLOAT[4] );
+
+	// init scene objects
+	void initGO( int index, bool zWrite, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale, XMFLOAT4 matData_FLOAT[4] );
 	void initMesh( char* filenameModel );
-	void initMaterialData( XMFLOAT4X4 mWorld, XMFLOAT4 f1, XMFLOAT4 f2, XMFLOAT4 f3, XMFLOAT4 f4 );
-	void initMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );
+	void initMaterialData( bool ZWrite, XMFLOAT4X4 mWorld, XMFLOAT4 f1, XMFLOAT4 f2, XMFLOAT4 f3, XMFLOAT4 f4 );
+	void initMaterial( LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader );
 	void initDDSMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );
-	void initPlanarReflection( UINT width, UINT height );
-	void setPlanarReflection();
-	bool initRTexture( UINT width, UINT height );
-	void initMirrorMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );
+
+	// SCENE RENDER CALL
 	void render( FLOAT time );
 	void renderPrecall( FLOAT time );
+	void renderZWriteOff( FLOAT time );
+
+	// SCENE UPDATE
 	void update( FLOAT deltatime );
+
+	// GPU 
 	int createGlobalParamsBuffer( ID3D11Device* pD3DDevice );
 	void setGlobalParameters( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* view, XMFLOAT4X4* projection, FLOAT time );
 
-	void setPlanarReflectionTexture( );
+	// SCENE DEINITIALIZATION
+	void deInit();
 
-	std::vector<Gameobject*> sceneObjects = {};
-	std::vector<Mesh*> meshes = {};
-	std::vector<Material*> materials = {};
-	std::vector<Material::MaterialBuffer*> materialData = {};
+
 private:
 
+	// GLOBAL SHADER PARAMETERS 
 	ID3D11Buffer* _globalParamsBuffer = nullptr;
 	struct GlobalParameters
 	{
@@ -44,25 +49,22 @@ private:
 		XMFLOAT4 time; // x -> Time.y, y -> deltaTime , zw -> padding
 	};
 
-	ID3D11Buffer* _pReflectionBuffer = nullptr;
-	struct ReflectionBuffer
-	{
-		XMFLOAT4X4 reflectionMatrix;
-	};
-
-
-	ID3D11Texture2D* m_renderTargetTexture;
-	ID3D11RenderTargetView* m_renderTargetView;
-	ID3D11ShaderResourceView* m_shaderResourceView;
-
-	PlanarReflection* pPlanarReflection;
-	MirrorMaterial* pMirrorMaterial;
-
+	// REFERENCES
 	ID3D11Device* dev;
 	ID3D11DeviceContext* devCon;
 	ID3D11DepthStencilView* depthStencilView;
 
+	// SCENE SYSTEM 
 	Camera* camera;
 	Light* light;
+	PlanarReflection* pPlanarReflection;
+
+	// SCENE OBJECTS AND COMPONENTS
+	std::vector<Gameobject*> sceneObjects = {};
+	std::vector<Gameobject*> objectsZWriteOff = {};
+	std::vector<Mesh*> meshes = {};
+	std::vector<Material*> materials = {};
+	std::vector<Material::MaterialBuffer*> materialData = {};
+	std::vector<Material::MaterialBuffer*> materialDataZWriteOff = {};
 };
 

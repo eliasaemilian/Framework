@@ -176,7 +176,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 			if (input == 'n')
 			{
 				fin >> normals[normalIndex].x >> normals[normalIndex].y >> normals[normalIndex].z;
-				
+
 				// Invert the Z normal to change to left hand system.
 				normals[normalIndex].z = normals[normalIndex].z * -1.0f;
 				normalIndex++;
@@ -194,7 +194,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 				fin >> faces[faceIndex].vIndex3 >> input2 >> faces[faceIndex].tIndex3 >> input2 >> faces[faceIndex].nIndex3
 					>> faces[faceIndex].vIndex2 >> input2 >> faces[faceIndex].tIndex2 >> input2 >> faces[faceIndex].nIndex2
 					>> faces[faceIndex].vIndex1 >> input2 >> faces[faceIndex].tIndex1 >> input2 >> faces[faceIndex].nIndex1;
-				
+
 				faceIndex++;
 			}
 		}
@@ -239,7 +239,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		verticesOUT[count].normal.y = normals[nIndex].y;
 		verticesOUT[count].normal.z = normals[nIndex].z;
 
-		indicesOUT.push_back( (WORD)count );
+		indicesOUT.push_back( ( WORD )count );
 		count++;
 
 		vIndex = faces[i].vIndex2 - 1;

@@ -11,7 +11,7 @@
 
 using namespace DirectX;
 
-int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader )
+int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader )
 {
 	int error = createVertexShader(pD3DDevice, vertexShader );
 	if (error != 0) return error;
@@ -24,7 +24,19 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR  verte
 
 	if (textureName != NULL)
 	{
-		error = createTextureAndSampler( pD3DDevice, textureName );
+		error = createMainTextureAndSampler( pD3DDevice, textureName );
+		if (error != 0) return error;
+	}
+
+	if (normalMap != NULL)
+	{
+		error = createNormalMap( pD3DDevice, normalMap );
+		if (error != 0) return error;
+	}
+
+	if (additionalTex != NULL)
+	{
+		error = createNormalMap( pD3DDevice, normalMap );
 		if (error != 0) return error;
 	}
 
@@ -43,6 +55,16 @@ void Material::render(ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mB
 	setMaterialBuffer(pD3DDeviceContext, &mBuf->WORLD_MATRIX, &mBuf->PARAM_FLOAT4_1, &mBuf->PARAM_FLOAT4_2, &mBuf->PARAM_FLOAT4_3, &mBuf->PARAM_FLOAT4_4 );
 
 	pD3DDeviceContext->PSSetShaderResources(0, 1, &_pMainTexture);
+	if (&_pNormalMap != nullptr)
+	{
+		pD3DDeviceContext->PSSetShaderResources( 2, 1, &_pNormalMap );
+	}
+
+	if (&_pAdditionalTex != nullptr)
+	{
+		pD3DDeviceContext->PSSetShaderResources( 3, 1, &_pAdditionalTex );
+	}
+
 	pD3DDeviceContext->PSSetSamplers(0, 1, &_pMainSampler);
 }
 
@@ -194,7 +216,7 @@ void Material::setMaterialBuffer( ID3D11DeviceContext* pD3DDeviceContext, XMFLOA
 	pD3DDeviceContext->VSSetConstantBuffers( 1, 1, &_pMaterialBuffer );
 }
 
-int Material::createTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName)
+int Material::createMainTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName)
 {
 	HRESULT hr = CreateWICTextureFromFile(pD3DDevice, textureName, nullptr, &_pMainTexture);
 	if (FAILED(hr)) return 48;
@@ -207,6 +229,34 @@ int Material::createTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureN
 
 	hr = pD3DDevice->CreateSamplerState(&desc, &_pMainSampler);
 	if (FAILED(hr)) return 49;
+
+	return 0;
+}
+
+int Material::createNormalMap( ID3D11Device* pD3DDevice, LPCWSTR textureName )
+{
+	HRESULT hr = CreateWICTextureFromFile( pD3DDevice, textureName, nullptr, &_pNormalMap );
+	if (FAILED( hr )) return 48;
+
+	D3D11_SAMPLER_DESC desc = {};
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	return 0;
+}
+
+int Material::createAdditonalTexture( ID3D11Device* pD3DDevice, LPCWSTR textureName )
+{
+	HRESULT hr = CreateWICTextureFromFile( pD3DDevice, textureName, nullptr, &_pAdditionalTex );
+	if (FAILED( hr )) return 48;
+
+	D3D11_SAMPLER_DESC desc = {};
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	return 0;
 }

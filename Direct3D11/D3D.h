@@ -8,10 +8,12 @@ class D3D
 {
 public: 
 	int init(HWND hWnd, INT width, INT height, bool isWindowed);
-	void beginScene(FLOAT red, FLOAT green, FLOAT blue);
+	void clearRenderTarget(FLOAT red, FLOAT green, FLOAT blue);
 	void endScene();
 	void deInit();
 	void setBackBufferRenderTarget();
+	void disableDrawToDepthStencil();
+
 
 	ID3D11Device* getDevice() { return _pD3DDevice; }
 	ID3D11DeviceContext* getDeviceContext() { return _pD3DDeviceContext; }
@@ -26,6 +28,9 @@ private:
 	ID3D11DepthStencilView* _pDepthStencilView = nullptr; // reference to depth & stencil buffer
 	ID3D11RasterizerState* _pRasterizerState = nullptr; // properties for rasterizer stage
 	ID3D11BlendState* _pBlendState = nullptr;
+
+	ID3D11DepthStencilState* _pDepthStencilStateZWriteOff = nullptr;
+	ID3D11DepthStencilState* _pDepthStencilStateDefault = nullptr;
 
 	D3D11_VIEWPORT _viewPort = {};
 

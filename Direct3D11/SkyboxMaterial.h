@@ -5,7 +5,7 @@ class SkyboxMaterial :
 {
 
 protected:
-    virtual int createTextureAndSampler( ID3D11Device* pD3DDevice, LPCWSTR textureName ) override;
+    virtual int createMainTextureAndSampler( ID3D11Device* pD3DDevice, LPCWSTR textureName ) override;
 
 };
 

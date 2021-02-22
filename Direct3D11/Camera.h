@@ -7,7 +7,7 @@ using namespace DirectX;
 class Camera
 {
 public:
-	int init(INT screenWidth, INT screenHeight, XMFLOAT3 pos);
+	int init( INT screenWidth, INT screenHeight, XMFLOAT3 pos );
 	void deInit();
 
 	XMFLOAT4X4* getViewMatrix() { return &_viewMatrix; }
@@ -25,7 +25,5 @@ private:
 	XMFLOAT4 _cameraPos;
 	XMFLOAT4 _cameraForward;
 	XMFLOAT4 _cameraUp;
-
-	XMVECTOR _camPos;
 };
 

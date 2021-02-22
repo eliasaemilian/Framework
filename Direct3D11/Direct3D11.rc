@@ -80,6 +80,10 @@ IDR_TEXTURE2            Texture                 "water_normals.jpg"
 
 IDB_PNG1                PNG                     "Obelisk_low_Obelisk_Normal.png"
 
+IDB_PNG2                PNG                     "Obelisk_low_Obelisk_Roughness.png"
+
+IDB_PNG3                PNG                     "comic_waterTex.png"
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

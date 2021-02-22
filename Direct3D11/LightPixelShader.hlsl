@@ -1,7 +1,7 @@
-Texture2D MainTexture;
+Texture2D MainTexture : register( t0 );
 SamplerState MainSampler;
 
-Texture2D NormalMap;
+Texture2D NormalMap : register( t2 );
 
 struct Light
 {
@@ -33,7 +33,11 @@ float4 main(PixelInput IN) : SV_TARGET
     float4 mainTextureColor = MainTexture.Sample(MainSampler, IN.uv);
     
     float3 normalizedLight = normalize(LightData.lightDirection);
-    float3 normalizedNormal = normalize(IN.normal);
+    
+    
+    float3 normal = NormalMap.Sample( MainSampler, IN.uv ).xyz ;
+
+    float3 normalizedNormal = normalize(normal);
     
     // diffuse light
     float diffuse = dot(-normalizedLight, normalizedNormal); // calculate light intensity
