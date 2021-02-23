@@ -66,5 +66,9 @@ private:
 	std::vector<Material*> materials = {};
 	std::vector<Material::MaterialBuffer*> materialData = {};
 	std::vector<Material::MaterialBuffer*> materialDataZWriteOff = {};
+
+	// OTHER
+	FLOAT _waterHeight = -3.5f;
+	FLOAT _waterTranslation = 0.0f;
 };
 

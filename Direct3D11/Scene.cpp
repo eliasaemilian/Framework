@@ -10,6 +10,9 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, ID3D11Depth
 	devCon = devConIN;
 	depthStencilView = depthStencilViewIN;
 
+	// SET WATER HEIGHT
+	_waterHeight = -3.5f;
+
 	// INIT GLOBAL SHADER PARAMETER BUFFER
 	createGlobalParamsBuffer( dev );
 
@@ -25,42 +28,53 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, ID3D11Depth
 	initLight();
 
 	// INIT MESHES
-	initMesh( ( char* )"inSphere.obj" );
+	initMesh( ( char* )"meshes/inSphere.obj" );
 
-	initMesh( ( char* )"Obelisk2.obj" );
-	initMesh( ( char* )"Sphere.obj" );
+	initMesh( ( char* )"meshes/Obelisk2.obj" );
+	initMesh( ( char* )"meshes/basicCube.obj" );
+
+	initMesh( ( char* )"meshes/dome.obj" );
 
 	initMesh( ( char* )"meshes/waterplane.obj" );
-	//initMesh( ( char* )"waterplane2.obj" );
 
 
 	// INIT MATERIALS
-	initDDSMaterial( L"cubemapSky.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
+	initDDSMaterial( L"skybox_compressed.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
 
 	initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk.hlsl", L"PS_Obelisk.hlsl" );
+	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" ); // CUBE
+
 	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_Sphere.hlsl", L"PS_Sphere.hlsl" );
 
-	initMaterial( L"comic_waterTex.png", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
+	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
+
 
 
 	// MATERIAL PARAMS
 	XMFLOAT4 mDataSkybox[4] = {};
 	XMFLOAT4 mDataObelisk[4] = {};
 	XMFLOAT4 mDataSphere[4] = {};
+	XMFLOAT4 mDataCube[4] = {};
 	mDataSphere[0].x = 0.0f;
 	mDataSphere[0].y = -2.0f;
 	mDataSphere[0].z = 20.0f;
 	XMFLOAT4 mDataWater[4] = {};
 
-	mDataObelisk[0].x = -3.5f;
+	mDataObelisk[0] = XMFLOAT4( camera->getCameraPos()->x, camera->getCameraPos()->y, camera->getCameraPos()->z, _waterHeight );
+
+	mDataCube[0].x = camera->getCameraPos()->x;
+	mDataCube[0].y = camera->getCameraPos()->y;
+	mDataCube[0].z = camera->getCameraPos()->z;
+	
 
 
 	// INIT GAMEOBJECTS
 	// INDEX	| POSITION					| ROTATION						| SCALE
 	initGO( 0, TRUE, XMFLOAT3( 0.5f, -1.5f,  0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.8f, 0.8f, 0.8f ), mDataSkybox );			// [ 0 ] SKYBOX
 	initGO( 1, TRUE, XMFLOAT3( 0.0f, -6.0f, 20.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), mDataObelisk );			// [ 1 ] OBELISK
-	initGO( 2, FALSE, XMFLOAT3( 0.0f, -2.0f, 20.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), mDataSphere );			// [ 2 ] SPHERE
-	initGO( 3, TRUE, XMFLOAT3( 0.0f, -3.5f, 10.0f ), XMFLOAT3( -0.01f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), mDataWater );			// [ 3 ] WATER
+	//initGO( 2, TRUE, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.9f, 0.0f ), XMFLOAT3( 0.1f, 0.1f, 0.1f ), mDataCube );			// [ 1 ] CUBE
+	initGO( 3, FALSE, XMFLOAT3( 0.0f, -2.0f, 20.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), mDataSphere );			// [ 2 ] SPHERE
+	initGO( 4, TRUE, XMFLOAT3( 0.0f, _waterHeight, 10.0f ), XMFLOAT3( -0.01f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), mDataWater );			// [ 3 ] WATER
 
 
 
@@ -139,6 +153,10 @@ void Scene::render( FLOAT time )
 	// SET REFLECTION MATRIX AND TEXTURE
 	pPlanarReflection->setPlanarReflection( devCon, camera->getReflectionMatrix() );
 
+	// UPDATE WATER Y FOE OBELISK TO ENABLE RENDERING BELOW WATER SURFACE
+	materialData[1]->PARAM_FLOAT4_1.w = -100;
+
+
 	// RENDER ALL SCENE OBJECTS
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
@@ -166,6 +184,9 @@ void Scene::renderPrecall( FLOAT time )
 	pPlanarReflection->setRenderTargetToTexture( devCon, depthStencilView );
 	pPlanarReflection->clearRenderTargetView( devCon );
 
+	// SET CUTOFF TO WATER HEIGHT
+	materialData[1]->PARAM_FLOAT4_1.w = _waterHeight;
+
 
 	// RENDER SCENE OBJECTS	TO TEXTURE WITH REFLECTION VIEW MATRIX
 	camera->RenderReflection( -3.5f );
@@ -178,8 +199,20 @@ void Scene::renderPrecall( FLOAT time )
 
 }
 
+bool countingDown = false;
 void Scene::update( FLOAT deltatime )
 {
+
+	// Update the position of the water to simulate motion.
+
+	if (_waterTranslation > 10.0f) countingDown = true;
+	else if (_waterTranslation <= 0.001f) countingDown = false;
+
+	if (!countingDown) _waterTranslation += 0.001f;
+	else _waterTranslation -= 0.001f;
+
+
+
 	for (int i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->update( deltatime );
@@ -204,10 +237,10 @@ int Scene::createGlobalParamsBuffer( ID3D11Device* pD3DDevice )
 void Scene::initLight()
 {
 	light = new Light();
-	light->LightDirection = { 0.3f, 0.7f, 0.0f };
+	light->LightDirection = { 0.3f, 0.5f, 0.0f };
 	light->AmbientColor = { 0.9f, 1.0f, 1.0f, 1.0f };
-	light->DiffuseColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	light->LightIntensity = 2.0f;
+	light->DiffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	light->LightIntensity = 1.0f;
 
 }
 
@@ -249,7 +282,7 @@ void Scene::setGlobalParameters( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT
 	XMMATRIX projectionMatrix = XMLoadFloat4x4( projection );
 
 
-	XMVECTOR t = XMVectorSet( time, time, time, time );
+	XMVECTOR t = XMVectorSet( time, time, time, _waterTranslation );
 
 	viewMatrix = XMMatrixTranspose( viewMatrix );
 	projectionMatrix = XMMatrixTranspose( projectionMatrix );

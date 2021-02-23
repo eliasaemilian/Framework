@@ -36,7 +36,7 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normal
 
 	if (additionalTex != NULL)
 	{
-		error = createNormalMap( pD3DDevice, normalMap );
+		error = createAdditonalTexture( pD3DDevice, additionalTex );
 		if (error != 0) return error;
 	}
 
@@ -222,9 +222,9 @@ int Material::createMainTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR text
 	if (FAILED(hr)) return 48;
 
 	D3D11_SAMPLER_DESC desc = {};
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	hr = pD3DDevice->CreateSamplerState(&desc, &_pMainSampler);

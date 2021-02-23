@@ -11,7 +11,7 @@ cbuffer MaterialData
 {
     float4x4 WORLD_MATRIX;
 
-    float4 PARAM_FLOAT4_1;
+    float4 WORLD_CAMERA; // xyz = world space camera pos
     float4 PARAM_FLOAT4_2;
     float4 PARAM_FLOAT4_3;
     float4 PARAM_FLOAT4_4;
@@ -29,6 +29,8 @@ struct VertexOutput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float3 normal : NORMAL;
+    float3 viewDirection : TEXCOORD1;
+
 };
 
 
@@ -36,20 +38,11 @@ struct VertexOutput
 VertexOutput main(VertexInput IN)
 {
     VertexOutput OUT;
-    float _Amplitude = 1.0f;
-    float _Wavelength = 10.0f;
-    float _Speed = 5.0f;
-    
-    IN.position.w = 1.0f;
-    float3 pos = IN.position.xyz;
-    
 
     
-    
-    IN.position = float4( pos.xyz, IN.position.w );
-    
-    //float4x4 mvp = mul( WORLD_MATRIX, CameraViewMatrix );
-    //mvp = mul( CameraProjectionMatrix, mvp );
+    IN.position.w = 1.0f;    
+    float3 worldPos = mul( IN.position, WORLD_MATRIX );
+    OUT.viewDirection = WORLD_CAMERA.xyz - worldPos;
     
     //OUT.position = mul(IN.position, mvp);
     
