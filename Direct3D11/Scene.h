@@ -4,16 +4,32 @@
 #include <vector>
 #include "PlanarReflection.h"
 #include "MirrorMaterial.h"
-
+#include "Time.h"
 
 class Scene
 {
 public:
 	// SCENE INITIALIZATION
-	int init( ID3D11Device* dev, ID3D11DeviceContext* devCon, ID3D11DepthStencilView* depthStencilView, FLOAT width, FLOAT height );
+	int init( ID3D11Device* dev, ID3D11DeviceContext* devCon, ID3D11DepthStencilView* depthStencilView, INT width, INT height );
+
+	// SCENE UPDATE
+	void update();
+
+	// SCENE RENDER CALL
+	void ReflectionsRenderpass();
+	void GeometryRenderpass();
+	void ZWriteOffRenderpass();
+
+	// SCENE DEINITIALIZATION
+	void deInit();
+
+
+private:
+
 	// init system
-	void initLight();
-	void initCamera( FLOAT width, FLOAT height );
+	int initLight();
+	int initTime();
+	int initCamera( INT width, INT height, XMFLOAT3 camPos );
 
 	// init scene objects
 	void initGO( int index, bool zWrite, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale, XMFLOAT4 matData_FLOAT[4] );
@@ -22,26 +38,17 @@ public:
 	void initMaterial( LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader );
 	void initDDSMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );
 
-	// SCENE RENDER CALL
-	void render( FLOAT time );
-	void renderPrecall( FLOAT time );
-	void renderZWriteOff( FLOAT time );
-
-	// SCENE UPDATE
-	void update( FLOAT deltatime );
-
 	// GPU 
-	int createGlobalParamsBuffer( ID3D11Device* pD3DDevice );
-	void setGlobalParameters( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* view, XMFLOAT4X4* projection, FLOAT time );
+	int createGlobalParamsBuffer();
+	void setGlobalParameters( XMFLOAT4X4* view, XMFLOAT4X4* projection, XMFLOAT4* t );
 
-	// SCENE DEINITIALIZATION
-	void deInit();
-
+	// HELPER
+	float linLerp( float a, float b, float f );
 
 private:
 
 	// GLOBAL SHADER PARAMETERS 
-	ID3D11Buffer* _globalParamsBuffer = nullptr;
+	ID3D11Buffer* _pGlobalParamsBuffer = nullptr;
 	struct GlobalParameters
 	{
 		XMFLOAT4X4 CameraViewMatrix;
@@ -50,25 +57,28 @@ private:
 	};
 
 	// REFERENCES
-	ID3D11Device* dev;
-	ID3D11DeviceContext* devCon;
-	ID3D11DepthStencilView* depthStencilView;
+	ID3D11Device* _pDev;
+	ID3D11DeviceContext* _pDevCon;
+	ID3D11DepthStencilView* _pDepthStencilView;
 
 	// SCENE SYSTEM 
-	Camera* camera;
-	Light* light;
-	PlanarReflection* pPlanarReflection;
+	Camera* _pCamera;
+	Light* _pLight;
+	Time* _pTime;
+	PlanarReflection* _pPlanarReflection;
 
 	// SCENE OBJECTS AND COMPONENTS
-	std::vector<Gameobject*> sceneObjects = {};
-	std::vector<Gameobject*> objectsZWriteOff = {};
-	std::vector<Mesh*> meshes = {};
-	std::vector<Material*> materials = {};
-	std::vector<Material::MaterialBuffer*> materialData = {};
-	std::vector<Material::MaterialBuffer*> materialDataZWriteOff = {};
+	std::vector<Gameobject*> _pSceneObjects = {};
+	std::vector<Gameobject*> _pObjectsZWriteOff = {};
+	std::vector<Mesh*> _pMeshes = {};
+	std::vector<Material*> _pMaterials = {};
+	std::vector<Material::MaterialBuffer*> _pMaterialData = {};
+	std::vector<Material::MaterialBuffer*> _pMaterialDataZWriteOff = {};
 
-	// OTHER
+	// WATER PARAMS
 	FLOAT _waterHeight = -3.5f;
 	FLOAT _waterTranslation = 0.0f;
+
+	FLOAT _timelapseCounter = 0.0f;
 };
 

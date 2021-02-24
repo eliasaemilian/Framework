@@ -4,7 +4,7 @@
 class Window
 {
 public:
-	int init(HINSTANCE hInstance, INT width, INT height, int nCmdShow);
+	int init( HINSTANCE hInstance, INT width, INT height, int nCmdShow );
 	bool run();
 	void deInit();
 

@@ -6,9 +6,9 @@
 
 class D3D
 {
-public: 
-	int init(HWND hWnd, INT width, INT height, bool isWindowed);
-	void clearRenderTarget(FLOAT red, FLOAT green, FLOAT blue);
+public:
+	int init( HWND hWnd, INT width, INT height, bool isWindowed );
+	void clearRenderTarget( FLOAT red, FLOAT green, FLOAT blue );
 	void endScene();
 	void deInit();
 	void setBackBufferRenderTarget();

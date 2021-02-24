@@ -30,7 +30,7 @@ struct VS_OUTPUT
     float4 worldPosWaterY : TEXCOORD1; // xyz = worldPos Object, w = waterY
     float3 viewDirection : TEXCOORD2;
     
-    float3 normal : NORMAL;
+    float3 normal : TEXCOORD3;
 };
 
 

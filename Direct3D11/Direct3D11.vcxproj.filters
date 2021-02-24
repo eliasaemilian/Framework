@@ -162,8 +162,6 @@
     <FxCompile Include="VS_Skybox.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="VS_PlanarReflection.hlsl" />
-    <FxCompile Include="PS_PlanarReflections.hlsl" />
     <FxCompile Include="VS_Obelisk.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
@@ -174,7 +172,13 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="PS_Sphere.hlsl">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_PlanarReflections.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_PlanarReflection.hlsl">
+      <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

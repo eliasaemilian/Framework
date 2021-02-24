@@ -22,6 +22,16 @@ cbuffer PixelShaderBuffer
     Light LightData;
 };
 
+cbuffer MaterialData : register ( b2 )
+{
+    float4x4 WORLD_MATRIX;
+
+    float4 WATER_TRANSLATION; // x [ WATER TRANSLATION ]
+    float4 REFRACTSCALE_TILING_SPEED; // X [ REFRACTION SCALE ], Y = [ REFRACTION TEXTURE TILING ], Z = [ REFRACTION SPEED]
+    float4 SCREEN_WIDTH_HEIGHT; // x width, y height <- unused
+    float4 PARAM_FLOAT4_4;
+};
+
 struct PixelInput
 {
     float4 position : SV_POSITION;
@@ -29,109 +39,64 @@ struct PixelInput
     float3 normal : NORMAL;
     float4 reflection : TEXCOORD1;
     float4 refraction : TEXCOORD2;
-    float waterTranslation : TEXCOORD3;
-    float4 position2 : TEXCOORD4;
+    float4 depthPos : TEXCOORD4;
 };
 
 float4 main( PixelInput IN ) : SV_TARGET
 {    
-    // NEW REFRACTIONS
-    float reflectRefractScale = .1;
-    
-    
-    float2 reflectTexCoord;
-    float2 refractUV;
-    float4 normalMap;
+    // INIT VARS
+    float4 color = ( 1, 1, 1, 1 );
     float4 reflectionColor;
     float4 refractionColor;
-    float3 normal;
-	
-    float speed = 0.2;
-	// Move the position the water normal is sampled from to simulate moving water.	
-    IN.uv.y += IN.waterTranslation * speed;
-	
-	// Calculate the projected reflection texture coordinates.
-    //reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
-    //reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
-	
-	// Calculate the projected refraction texture coordinates.
-    refractUV.x =  IN.refraction.x / IN.refraction.w * 0.5f + 0.5f;
-    refractUV.y = -IN.refraction.y / IN.refraction.w * 0.5f + 0.5f;
     
     
-    normalMap = NormalMap.Sample( MainSampler, IN.uv );
-    normal = ( normalMap.xyz * 2.0f ) - 1.0f;
+    // REFRACTION / WATER CAUSTICS SIMULATION
     
-    refractUV += normal.xy * reflectRefractScale ;
-
-    refractionColor = MainTexture.Sample( MainSampler, refractUV * 4);
+    float reflectRefractScale = REFRACTSCALE_TILING_SPEED.x;
+    float tiling = REFRACTSCALE_TILING_SPEED.y;
+    float speed = REFRACTSCALE_TILING_SPEED.z;
     
-    
-    // COLOR 
-    
-   // float4 textureColor;
     float2 rUV;
-    float4 rColor;
-    float4 color;
+
+	// simulated water movement by moving uv sampling points	
+    IN.uv.y += WATER_TRANSLATION.x * speed;
+		
+	// map UVS to 0 - 1 Range
+    rUV.x =  IN.refraction.x / IN.refraction.w * 0.5f + 0.5f;
+    rUV.y = -IN.refraction.y / IN.refraction.w * 0.5f + 0.5f;
     
-   // textureColor = MainTexture.Sample( MainSampler, IN.uv * 20);
+    // sample normal map
+    float4 normalMap = NormalMap.Sample( MainSampler, IN.uv );
+    float3 normal = ( normalMap.xyz * 2.0f ) - 1.0f;
     
-   // // REFLECTIONS
+    rUV +=  normal.xy * reflectRefractScale ;
+
+    // get pixel passing calculated refraction uvs
+    refractionColor = MainTexture.Sample( MainSampler, rUV * tiling);
+    
+       
+        
+    // PLANAR REFLECTIONS
     
     // map UVS to 0 - 1 Range
     rUV.x = IN.reflection.x / IN.reflection.w * .5 + .5;
     rUV.y = -IN.reflection.y / IN.reflection.w * .5 + .5;
-    // get pixel pos with reflection uvs
-    
-    
-    //if ( rUV.y > .05 )
+
+    // clamp uvs as to keep reflectin texture within screen params
     rUV.y += max( normal.y * reflectRefractScale, 0 );
-    if (rUV.x > .05 && rUV.x < .95)
+    if ( rUV.x > .05 && rUV.x < .95 )
         rUV.x += normal.x * reflectRefractScale;
 
     
+    // get pixel passing calculated reflection uvs
+    reflectionColor = ReflectionTexture.Sample( MainSampler, rUV );
+      
+    // blend for final result
+    color = saturate( lerp( refractionColor, reflectionColor, .65 ) ); // replace t with reflection strength
     
-    rColor = ReflectionTexture.Sample( MainSampler, rUV );
-    
-    //return rColor;
-   // // blend with rest
-   // color = lerp( textureColor, rColor, .65 ); // replace t with reflection strength
-    color = lerp( refractionColor, rColor, .65 ); // replace t with reflection strength
-    
+    color.xyz *= LightData.LightIntensity;
 
 
     return color;
-   // normal *= (  IN.normal );
-   // normal = normalize( normal );
 
-   // //return float4( normal, 1 );
-    
-   // float4 albedo = float4( 0.133, 0.584, 0.827, 1 );
-   // float3 normalizedLight = normalize( LightData.LightDirection );
-   //// float3 normalizedNormal = normalize( mainTextureColor );
-    
-   // // diffuse light
-   //// float diffuse = dot( -normalizedLight, normalizedNormal ); // calculate light intensity
-   // float diffuse = dot( -normalizedLight, normal ); // calculate light intensity
-   // diffuse = max( diffuse, 0.0f ); // dot product can be negative
-   // diffuse *= LightData.LightIntensity; // adjust light intensity by multiplicator
-  
-   //// return float4( normalizedNormal, 1 );
-    
-   // float3 lightDir = normalize( LightData.LightDirection );
-    
-   // // Direct diffuse Light
-   // float lightFalloff = saturate( dot( lightDir, normal ) );
-   // lightFalloff *= LightData.LightIntensity;
-   // float3 directDiffuseLight = LightData.AmbientColor * lightFalloff;
-    
-   // //return float4( directDiffuseLight, 1.0f );
-    
-    
-    
-    
-   // float4 res = color * saturate( LightData.AmbientColor + LightData.DiffuseColor * diffuse );
-   // res = color * saturate( float4( directDiffuseLight, 1 ) );
-
-   // return float4( res.xyz, 1 );
 }

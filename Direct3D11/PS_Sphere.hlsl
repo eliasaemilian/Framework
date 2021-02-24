@@ -32,33 +32,16 @@ struct PS_INPUT
 
 float4 main( PS_INPUT IN ) : SV_TARGET
 {
-    //float4 tex = MainTexture.Sample( MainSampler, IN.uv );
-    //float4 normal = NormalMap.Sample( MainSampler, IN.uv );
-    //float4 roughness = RoughnessMap.Sample( MainSampler, IN.uv );
+    float3 albedo = ( 1, 1, 1);
+    float alpha = .4;
     
-    
-    
+    // adjusting albedo using uv to add globe effect
     float dist = distance( IN.worldPosCenter, IN.worldPos );
+    float3 col = IN.uv.x * albedo;   
+    col *= .5;
     
+    // lerp for final result
+    col = lerp( albedo, col, .5 ) * LightData.LightIntensity;
     
-    //return float4( IN.worldPos.xxx, 1 );
-    //return float4( dist.xxx, 1 );
-    //normal = mul( normal, IN.worldMatrix );
-    //normal = normalize( normal );
-    
-    
-    //// DIFFUSE LIGHTING
-    
-    ////float diffuse = dot( -normalizedLight, normalizedNormal ); // calculate light intensity
-    ////diffuse = max( diffuse, 0.0f ); // dot product can be negative
-    ////diffuse *= LightData.lightIntensity; // adjust light intensity by multiplicator
-    
-    //float3 lDir = -normalize( LightData.LightDirection );
-    //float lIntensity = saturate( dot( normal.xyz, lDir ) ) * LightData.LightIntensity; // get cos   
-    
-    
-    //float4 diRes = float4( saturate( LightData.DiffuseColor * lIntensity ).xyz, 1 );
-    
-   // return LightData.DiffuseColor;
-    return float4( 1, 1, 1, .4 );
+    return saturate( float4( col, alpha ) );
 }

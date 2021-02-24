@@ -7,7 +7,7 @@ void PlanarReflection::init( ID3D11Device* dev, UINT width, UINT height )
 	initBuffer( dev );
 }
 
-bool PlanarReflection::initReflectionTexture( ID3D11Device*  dev, UINT width, UINT height )
+bool PlanarReflection::initReflectionTexture( ID3D11Device* dev, UINT width, UINT height )
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
@@ -112,7 +112,7 @@ void PlanarReflection::deinit()
 	safeRelease<ID3D11RenderTargetView>( _pRenderTargetView );
 	safeRelease<ID3D11ShaderResourceView>( _pShaderResourceView );
 	safeRelease<ID3D11Buffer>( _pReflectionBuffer );
-	
+
 }
 
 

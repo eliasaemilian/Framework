@@ -11,12 +11,12 @@
 
 using namespace DirectX;
 
-int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader )
+int Material::init( ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader )
 {
-	int error = createVertexShader(pD3DDevice, vertexShader );
+	int error = createVertexShader( pD3DDevice, vertexShader );
 	if (error != 0) return error;
 
-	error = createPixelShader(pD3DDevice, pixelShader );
+	error = createPixelShader( pD3DDevice, pixelShader );
 	if (error != 0) return error;
 
 	error = createMaterialBuffer( pD3DDevice );
@@ -40,21 +40,27 @@ int Material::init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normal
 		if (error != 0) return error;
 	}
 
-	error = createPixelShaderBuffer(pD3DDevice);
+	error = createLightDataBuffer( pD3DDevice );
 	if (error != 0) return error;
 
 	return 0;
 }
 
-void Material::render(ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mBuf )
+void Material::render( ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mBuf )
 {
-	pD3DDeviceContext->IASetInputLayout(_pInputLayout);
-	pD3DDeviceContext->VSSetShader(_pVertexShader, nullptr, 0);
-	pD3DDeviceContext->PSSetShader(_pPixelShader, nullptr, 0);
+	pD3DDeviceContext->IASetInputLayout( _pInputLayout );
+	pD3DDeviceContext->VSSetShader( _pVertexShader, nullptr, 0 );
+	pD3DDeviceContext->PSSetShader( _pPixelShader, nullptr, 0 );
 
-	setMaterialBuffer(pD3DDeviceContext, &mBuf->WORLD_MATRIX, &mBuf->PARAM_FLOAT4_1, &mBuf->PARAM_FLOAT4_2, &mBuf->PARAM_FLOAT4_3, &mBuf->PARAM_FLOAT4_4 );
+	setMaterialBuffer( pD3DDeviceContext, &mBuf->WORLD_MATRIX, &mBuf->PARAM_FLOAT4_1, &mBuf->PARAM_FLOAT4_2, &mBuf->PARAM_FLOAT4_3, &mBuf->PARAM_FLOAT4_4 );
 
-	pD3DDeviceContext->PSSetShaderResources(0, 1, &_pMainTexture);
+
+	if (&_pMainTexture != nullptr)
+	{
+		pD3DDeviceContext->PSSetShaderResources( 0, 1, &_pMainTexture );
+		pD3DDeviceContext->PSSetSamplers( 0, 1, &_pMainSampler );
+	}
+
 	if (&_pNormalMap != nullptr)
 	{
 		pD3DDeviceContext->PSSetShaderResources( 2, 1, &_pNormalMap );
@@ -65,35 +71,34 @@ void Material::render(ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mB
 		pD3DDeviceContext->PSSetShaderResources( 3, 1, &_pAdditionalTex );
 	}
 
-	pD3DDeviceContext->PSSetSamplers(0, 1, &_pMainSampler);
 }
 
 void Material::deInit()
 {
-	safeRelease<ID3D11ShaderResourceView>(_pMainTexture);
-	safeRelease<ID3D11SamplerState>(_pMainSampler);
-	safeRelease<ID3D11Buffer>(_pMaterialBuffer);
-	safeRelease<ID3D11Buffer>(_pPixelShaderBuffer);
-	safeRelease<ID3D11VertexShader>(_pVertexShader);
-	safeRelease<ID3D11PixelShader>(_pPixelShader);
-	safeRelease<ID3D11InputLayout>(_pInputLayout);
+	safeRelease<ID3D11ShaderResourceView>( _pMainTexture );
+	safeRelease<ID3D11SamplerState>( _pMainSampler );
+	safeRelease<ID3D11Buffer>( _pMaterialBuffer );
+	safeRelease<ID3D11Buffer>( _pPixelShaderBuffer );
+	safeRelease<ID3D11VertexShader>( _pVertexShader );
+	safeRelease<ID3D11PixelShader>( _pPixelShader );
+	safeRelease<ID3D11InputLayout>( _pInputLayout );
 }
 
-void Material::setLight(ID3D11DeviceContext* pD3DDeviceContext, Light& lightData)
+void Material::setLight( ID3D11DeviceContext* pD3DDeviceContext, Light& lightData )
 {
 	D3D11_MAPPED_SUBRESOURCE data = {};
-	HRESULT hr = pD3DDeviceContext->Map(_pPixelShaderBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	if (FAILED(hr)) return;
+	HRESULT hr = pD3DDeviceContext->Map( _pPixelShaderBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data );
+	if (FAILED( hr )) return;
 
-	PixelShaderBuffer* pBuffer = reinterpret_cast<PixelShaderBuffer*>(data.pData);
+	PixelShaderBuffer* pBuffer = reinterpret_cast< PixelShaderBuffer* >( data.pData );
 	pBuffer->lightData = lightData;
 
-	pD3DDeviceContext->Unmap(_pPixelShaderBuffer, 0);
+	pD3DDeviceContext->Unmap( _pPixelShaderBuffer, 0 );
 
-	pD3DDeviceContext->PSSetConstantBuffers(0, 1, &_pPixelShaderBuffer);
+	pD3DDeviceContext->PSSetConstantBuffers( 0, 1, &_pPixelShaderBuffer );
 }
 
-int Material::createVertexShader(ID3D11Device* pD3DDevice, LPCWSTR vertexShader )
+int Material::createVertexShader( ID3D11Device* pD3DDevice, LPCWSTR vertexShader )
 {
 	ID3DBlob* pCompiledCode = nullptr;
 	HRESULT hr = D3DCompileFromFile(
@@ -105,20 +110,20 @@ int Material::createVertexShader(ID3D11Device* pD3DDevice, LPCWSTR vertexShader 
 		&pCompiledCode, // compiled code target
 		nullptr // optional blob for all compile errors
 	);
-	if (FAILED(hr)) return 40;
+	if (FAILED( hr )) return 40;
 
-	hr = pD3DDevice->CreateVertexShader(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pVertexShader);
-	if (FAILED(hr)) return 42;
+	hr = pD3DDevice->CreateVertexShader( pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pVertexShader );
+	if (FAILED( hr )) return 42;
 
-	int error = createInputLayout(pD3DDevice, pCompiledCode);
+	int error = createInputLayout( pD3DDevice, pCompiledCode );
 	if (error != 0) return error;
 
-	safeRelease<ID3DBlob>(pCompiledCode);
+	safeRelease<ID3DBlob>( pCompiledCode );
 
 	return 0;
 }
 
-int Material::createPixelShader(ID3D11Device* pD3DDevice, LPCWSTR pixelShader )
+int Material::createPixelShader( ID3D11Device* pD3DDevice, LPCWSTR pixelShader )
 {
 	ID3DBlob* pCompiledCode = nullptr;
 	HRESULT hr = D3DCompileFromFile(
@@ -130,17 +135,17 @@ int Material::createPixelShader(ID3D11Device* pD3DDevice, LPCWSTR pixelShader )
 		&pCompiledCode, // compiled code target
 		nullptr // optional blob for all compile errors
 	);
-	if (FAILED(hr)) return 46;
+	if (FAILED( hr )) return 46;
 
-	hr = pD3DDevice->CreatePixelShader(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pPixelShader);
-	if (FAILED(hr)) return 48;
+	hr = pD3DDevice->CreatePixelShader( pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pPixelShader );
+	if (FAILED( hr )) return 48;
 
-	safeRelease<ID3DBlob>(pCompiledCode);
+	safeRelease<ID3DBlob>( pCompiledCode );
 
 	return 0;
 }
 
-int Material::createInputLayout(ID3D11Device* pD3DDevice, ID3DBlob* pBlob)
+int Material::createInputLayout( ID3D11Device* pD3DDevice, ID3DBlob* pBlob )
 {
 	D3D11_INPUT_ELEMENT_DESC elements[4] = {};
 
@@ -163,8 +168,8 @@ int Material::createInputLayout(ID3D11Device* pD3DDevice, ID3DBlob* pBlob)
 	elements[3].Format = DXGI_FORMAT_R32G32_FLOAT;
 	elements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	HRESULT hr = pD3DDevice->CreateInputLayout(elements, 4, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout);
-	if (FAILED(hr)) return 44;
+	HRESULT hr = pD3DDevice->CreateInputLayout( elements, 4, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout );
+	if (FAILED( hr )) return 44;
 
 	return 0;
 }
@@ -214,12 +219,14 @@ void Material::setMaterialBuffer( ID3D11DeviceContext* pD3DDeviceContext, XMFLOA
 	pD3DDeviceContext->Unmap( _pMaterialBuffer, 0 );
 
 	pD3DDeviceContext->VSSetConstantBuffers( 1, 1, &_pMaterialBuffer );
+
+	pD3DDeviceContext->PSSetConstantBuffers( 2, 1, &_pMaterialBuffer );
 }
 
-int Material::createMainTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName)
+int Material::createMainTextureAndSampler( ID3D11Device* pD3DDevice, LPCWSTR textureName )
 {
-	HRESULT hr = CreateWICTextureFromFile(pD3DDevice, textureName, nullptr, &_pMainTexture);
-	if (FAILED(hr)) return 48;
+	HRESULT hr = CreateWICTextureFromFile( pD3DDevice, textureName, nullptr, &_pMainTexture );
+	if (FAILED( hr )) return 48;
 
 	D3D11_SAMPLER_DESC desc = {};
 	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -227,8 +234,8 @@ int Material::createMainTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR text
 	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
-	hr = pD3DDevice->CreateSamplerState(&desc, &_pMainSampler);
-	if (FAILED(hr)) return 49;
+	hr = pD3DDevice->CreateSamplerState( &desc, &_pMainSampler );
+	if (FAILED( hr )) return 49;
 
 	return 0;
 }
@@ -298,16 +305,16 @@ int Material::createCubeMapTextureAndSampler( ID3D11Device* dev, LPCWSTR texture
 	return hr;
 }
 
-int Material::createPixelShaderBuffer(ID3D11Device* pD3DDevice)
+int Material::createLightDataBuffer( ID3D11Device* pD3DDevice )
 {
 	D3D11_BUFFER_DESC desc = {};
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.ByteWidth = sizeof(PixelShaderBuffer);
+	desc.ByteWidth = sizeof( PixelShaderBuffer );
 	desc.Usage = D3D11_USAGE_DYNAMIC;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-	HRESULT hr = pD3DDevice->CreateBuffer(&desc, nullptr, &_pPixelShaderBuffer);
-	if (FAILED(hr)) return 47;
+	HRESULT hr = pD3DDevice->CreateBuffer( &desc, nullptr, &_pPixelShaderBuffer );
+	if (FAILED( hr )) return 47;
 
 	return 0;
 }

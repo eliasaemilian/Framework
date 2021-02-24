@@ -1,3 +1,4 @@
+#pragma once
 #include "D3D.h"
 #include "Utils.h"
 #include <d3d11_1.h>
@@ -102,8 +103,8 @@ int D3D::init( HWND hWnd, INT width, INT height, bool isWindowed )
 	if (FAILED( hr )) return 29;
 
 	// 5. create viewport
-	_viewPort.Width = width;
-	_viewPort.Height = height;
+	_viewPort.Width = static_cast< FLOAT > ( width );
+	_viewPort.Height = static_cast< FLOAT > ( height );
 	_viewPort.TopLeftX = 0.0f;
 	_viewPort.TopLeftY = 0.0f;
 	_viewPort.MinDepth = 0.0f;
@@ -150,7 +151,7 @@ void D3D::clearRenderTarget( FLOAT red, FLOAT green, FLOAT blue )
 	// clear back buffer with solid color
 	const FLOAT color[] = { red, green, blue, 1.0f };
 	_pD3DDeviceContext->ClearRenderTargetView( _pRenderTargetView, color );
-	_pD3DDeviceContext->ClearDepthStencilView( _pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0xffffff );
+	_pD3DDeviceContext->ClearDepthStencilView( _pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, static_cast < UINT8 > ( 0xffffff ) );
 }
 
 void D3D::endScene()

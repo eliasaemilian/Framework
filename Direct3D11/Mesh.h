@@ -31,10 +31,8 @@ private:
 	UINT _vertexStride = 0; // size of one vertex instance in bytes
 	UINT _indexCount = 0; // amount of indices
 
-
 	std::vector<Vertex> _vertices = {};
 	std::vector<WORD> _indices = {};
-
 
 };
 

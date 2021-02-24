@@ -15,10 +15,10 @@
 #define SCREEN_HEIGHT 1024
 
 
-int CALLBACK WinMain( 
+int CALLBACK WinMain(
 	_In_	 HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance, 
-	_In_	 LPSTR     lpCmdLine, 
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_	 LPSTR     lpCmdLine,
 	_In_	 int       nCmdShow )
 {
 	INT width = SCREEN_WIDTH;
@@ -35,11 +35,6 @@ int CALLBACK WinMain(
 	error = d3d.init( window.getWindowHandle(), width, height, isWindowed );
 	if (error != 0) return error;
 
-	// INIT TIME
-	Time time;
-	error = time.init();
-	if (error != 0) return error;
-
 	// INIT SCENE
 	Scene scene = {};
 	error = scene.init( d3d.getDevice(), d3d.getDeviceContext(), d3d.getDepthStencilView(), width, height );
@@ -52,29 +47,24 @@ int CALLBACK WinMain(
 		if (!window.run()) break;
 
 		// UPDATE
-		time.update();
-		scene.update( time.getDeltaTime() );
+		scene.update();
 
 		// CLEAR SCENE 
 		d3d.clearRenderTarget( 0.0f, 0.0f, 0.0f );
 
 		// RENDER CALL
+		scene.ReflectionsRenderpass();
 
-		scene.renderPrecall( time.getTime() );
-
-
-		// Reset the render target back to the original back buffer and not the render to texture anymore.
+		// set render target to backbuffer
 		d3d.setBackBufferRenderTarget();
 		d3d.clearRenderTarget( 0.0f, 0.0f, 0.0f );
 
+		// render geometry
+		scene.GeometryRenderpass();
 
-		scene.render( time.getTime() );
-
+		// render z write off
 		d3d.disableDrawToDepthStencil();
-
-		scene.renderZWriteOff( time.getTime() );
-
-		// -> SPLIT THIS INTO RENDER SKYBOX, RENDER OPAQUES, RENDER TRANSPARENT, RENDER REFLECTION, RENDER SHADOWS
+		scene.ZWriteOffRenderpass();
 
 		// SWITCH BUFFERS
 		d3d.endScene();
@@ -82,7 +72,6 @@ int CALLBACK WinMain(
 
 	// CLEAR MEMORY
 	scene.deInit();
-	time.deInit();
 	d3d.deInit();
 	window.deInit();
 

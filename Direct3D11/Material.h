@@ -37,7 +37,7 @@ protected:
 	int createNormalMap(ID3D11Device* pD3DDevice, LPCWSTR textureName );
 	int createAdditonalTexture(ID3D11Device* pD3DDevice, LPCWSTR textureName );
 	int createCubeMapTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
-	int createPixelShaderBuffer(ID3D11Device* pD3DDevice);
+	int createLightDataBuffer(ID3D11Device* pD3DDevice);
 
 	// shaders
 	ID3D11VertexShader* _pVertexShader = nullptr;

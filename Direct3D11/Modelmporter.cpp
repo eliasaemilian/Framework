@@ -1,7 +1,7 @@
 #include "Modelmporter.h"
 
 
-// -> [ http://www.rastertek.com/dx11tut08.html ]
+// -> CODE REF [ http://www.rastertek.com/dx11tut08.html ]
 typedef struct
 {
 	float x, y, z;
@@ -218,7 +218,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	// Now loop through all the faces and output the three vertices for each face.
 	for (int i = 0; i < faceIndex; i++)
 	{
-
+		// VERT ONE
 		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
 		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
 		verticesOUT.push_back( Vertex( 0, 0, 0 ) );
@@ -242,6 +242,7 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		indicesOUT.push_back( ( WORD )count );
 		count++;
 
+		// VERT TWO
 		vIndex = faces[i].vIndex2 - 1;
 		tIndex = faces[i].tIndex2 - 1;
 		nIndex = faces[i].nIndex2 - 1;
@@ -261,11 +262,10 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 		indicesOUT.push_back( ( WORD )count );
 		count++;
 
-
+		// VERT THREE
 		vIndex = faces[i].vIndex3 - 1;
 		tIndex = faces[i].tIndex3 - 1;
 		nIndex = faces[i].nIndex3 - 1;
-
 
 		verticesOUT[count].position.x = vertices[vIndex].x;
 		verticesOUT[count].position.y = vertices[vIndex].y;
@@ -311,8 +311,8 @@ bool Modelmporter::LoadDataStructures( char* filename, int vertexCount, int text
 	}
 
 
-	mesh.SetVertices( verticesOUT, verticesOUT.size() );
-	mesh.SetIndices( indicesOUT, indicesOUT.size() );
+	mesh.SetVertices( verticesOUT, static_cast< UINT >( verticesOUT.size() ) );
+	mesh.SetIndices( indicesOUT, static_cast< UINT >( indicesOUT.size() ) );
 
 	return true;
 }

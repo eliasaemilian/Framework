@@ -19,13 +19,22 @@ cbuffer PixelShaderBuffer : register ( b0 )
     Light LightData;
 };
 
+cbuffer MaterialData : register( b2 )
+{
+    float4x4 WORLD_MATRIX;
+    float4 PARAM_FLOAT4_2;
+    float4 LIGHTING_ADJUSTS; // X [ AMBIENT INTENSITY ], Y [ DIFFUSE INTENSITY ], Z [ SPECULAR POWER ], W [ MODEL NORMAL STRENGTH ]
+    float4 PARAM_FLOAT4_3; // x width, y height <- unused
+    float4 PARAM_FLOAT4_4;
+};
+
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float4 WorldPosWaterY : TEXCOORD1; // xyz = worldPos Object, w = waterY
     float3 viewDir : TEXCOORD2;
-    float3 normal : NORMAL;
+    float3 normal : TEXCOORD3;
 };
 
 
@@ -33,7 +42,7 @@ struct PS_INPUT
 float4 main(PS_INPUT IN) : SV_TARGET
 {   
     // calc tangent and bitangent
-
+    
      // compute derivations of the world position
     float3 p_dx = ddx( IN.WorldPosWaterY.xyz );
     float3 p_dy = ddy( IN.WorldPosWaterY.xyz );
@@ -57,19 +66,24 @@ float4 main(PS_INPUT IN) : SV_TARGET
     float4 tex = MainTexture.Sample( MainSampler, IN.uv );
     float3 normal = NormalMap.Sample( MainSampler, IN.uv );
     float4 roughness = RoughnessMap.Sample( MainSampler, IN.uv );
-    
-    // calc normal from normal map
-    float3 bump = (normal * 2) - 1;
-    float3 bumpNormal = IN.normal + bump.x * t + bump.y * b;
-    bumpNormal = normalize( bumpNormal );
-    
     roughness = normalize( roughness );
-    normal = bumpNormal;
+
+    // calc normal from normal map
+    float3 nModel = saturate( float4( IN.normal, 1 ) * LIGHTING_ADJUSTS.w ); // normal strength 
+    float3 bump = (normal * 2) - 1;
+    float3 bumpNormal = saturate( IN.normal + bump.x * t + bump.y * b );
+    
+    bumpNormal += nModel;   
+    bumpNormal = normalize( saturate( bumpNormal ) );
+    
+    // lerp with model data 
+    normal = normalize( lerp( nModel, bumpNormal, .2 ) );
+
     
     // LIGHTING     
-    float ambientIntensity = 0.1;
-    float diffuseIntensity = 0.2;
-    float specularPower = 0.02;
+    float ambientIntensity = LIGHTING_ADJUSTS.x;
+    float diffuseIntensity = LIGHTING_ADJUSTS.y;
+    float specularPower = LIGHTING_ADJUSTS.z;
     
     // init vars
     float4 final;
@@ -92,13 +106,13 @@ float4 main(PS_INPUT IN) : SV_TARGET
         specular = max( pow( saturate( d ), specularPower ), 0 );
         specular = specular * roughness;
     } 
-    
     // add up for final result
     final += diffuse;
-    final += LightData.ambientColor * ambientIntensity;
-    float4 col = saturate( tex + diffuse * diffuseIntensity );
-    
 
+    float4 col = saturate( tex + diffuse * diffuseIntensity );
+    col.xyz += LightData.ambientColor * ambientIntensity;
+    col.xyz *= LightData.lightIntensity;
+    
     // clip reflection to cutoff below water surface
     clip( ( IN.WorldPosWaterY.y < IN.WorldPosWaterY.w ) ? -1 : 1 );
 
