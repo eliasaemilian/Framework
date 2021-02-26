@@ -38,18 +38,23 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, ID3D11Depth
 	err = initTime();
 	if (err != 0) return err;
 
+
 	// INIT MESHES
 	initMesh( ( char* )"meshes/inSphere.obj" );
 	initMesh( ( char* )"meshes/Obelisk2.obj" );
 	initMesh( ( char* )"meshes/dome.obj" );
-	initMesh( ( char* )"meshes/waterplane.obj" );
+	initMesh( ( char* )"meshes/basicPlane.obj" );
 
 	// INIT MATERIALS
-	initDDSMaterial( L"textures/cubemap_otherworld.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
-	initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk.hlsl", L"PS_Obelisk.hlsl" );
-	initMaterial( NULL, NULL, NULL, L"VS_Sphere.hlsl", L"PS_Sphere.hlsl" );
-	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
+	initDDSMaterial( L"textures/cubemap_otherworld.DDS", L"VS_Skybox", L"PS_Skybox" );
+	initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk", L"PS_Obelisk" );
+	initMaterial( NULL, NULL, NULL, L"VS_Sphere", L"PS_Sphere" );
+	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader", L"PS_WaterShader" );
 
+	//initDDSMaterial( L"textures/cubemap_otherworld.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
+	//initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk.hlsl", L"PS_Obelisk.hlsl" );
+	//initMaterial( NULL, NULL, NULL, L"VS_Sphere.hlsl", L"PS_Sphere.hlsl" );
+	//initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
 
 	// SET MATERIAL PARAMS
 	XMFLOAT4 mDataSkybox[4] = {};

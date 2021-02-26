@@ -104,6 +104,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Users\Cy\Uni\Graphics\Framework\Direct3D11\textures;C:\Users\Cy\Uni\Graphics\Framework\Direct3D11\meshes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,6 +135,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Users\Cy\Uni\Graphics\Framework\Direct3D11\textures;C:\Users\Cy\Uni\Graphics\Framework\Direct3D11\meshes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,12 +178,10 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bitmap1.bmp" />
-    <Image Include="comic_waterTex.png" />
     <Image Include="Obelisk_low_Obelisk_BaseColor.png" />
     <Image Include="Obelisk_low_Obelisk_Normal.png" />
     <Image Include="Obelisk_low_Obelisk_Roughness.png" />
-    <Image Include="wall.jpg" />
+    <Image Include="textures\cubemap_otherworld.dds" />
     <Image Include="waterTex.jpg" />
     <Image Include="water_normals.jpg" />
   </ItemGroup>
@@ -294,6 +294,22 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct3D11.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <_EmbedManagedResourceFile Include="meshes\inSphere.obj">
+      <FileType>Document</FileType>
+    </_EmbedManagedResourceFile>
+  </ItemGroup>
+  <ItemGroup>
+    <_EmbedManagedResourceFile Include="meshes\basicPlane.obj">
+      <FileType>Document</FileType>
+    </_EmbedManagedResourceFile>
+    <_EmbedManagedResourceFile Include="meshes\dome.obj">
+      <FileType>Document</FileType>
+    </_EmbedManagedResourceFile>
+    <_EmbedManagedResourceFile Include="meshes\Obelisk2.obj">
+      <FileType>Document</FileType>
+    </_EmbedManagedResourceFile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

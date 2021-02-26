@@ -1,3 +1,4 @@
+#pragma once
 #include "Material.h"
 #include "WICTextureLoader11.h"
 #include <d3dcompiler.h>
@@ -5,6 +6,7 @@
 #include <d3d11.h>
 #include <vector>
 #include <DDSTextureLoader.h>
+#include <string>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -101,15 +103,32 @@ void Material::setLight( ID3D11DeviceContext* pD3DDeviceContext, Light& lightDat
 int Material::createVertexShader( ID3D11Device* pD3DDevice, LPCWSTR vertexShader )
 {
 	ID3DBlob* pCompiledCode = nullptr;
-	HRESULT hr = D3DCompileFromFile(
-		vertexShader, // shader filename
-		nullptr, nullptr, // optional macros & includes
-		"main", // entry point function name
-		"vs_4_0", // shader type & version
-		0, 0, // optional flags
-		&pCompiledCode, // compiled code target
-		nullptr // optional blob for all compile errors
-	);
+
+	std::wstring comp = std::wstring( vertexShader ) + L".cso";
+	HRESULT hr = D3DReadFileToBlob( comp.c_str(), &pCompiledCode );
+
+
+	if (FAILED(hr))
+	{
+		std::wstring raw = std::wstring( vertexShader ) + L".hlsl";
+
+		 hr = D3DCompileFromFile(
+			 raw.c_str(), // shader filename
+			nullptr, nullptr, // optional macros & includes
+			"main", // entry point function name
+			"vs_4_0", // shader type & version
+			0, 0, // optional flags
+			&pCompiledCode, // compiled code target
+			nullptr // optional blob for all compile errors
+		);
+
+		 if (hr == D3D11_ERROR_FILE_NOT_FOUND)
+		 {
+			 MessageBox( NULL, std::to_wstring( hr ).c_str(), vertexShader, 0 );
+		 }
+	}
+
+
 	if (FAILED( hr )) return 40;
 
 	hr = pD3DDevice->CreateVertexShader( pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pVertexShader );
@@ -126,15 +145,31 @@ int Material::createVertexShader( ID3D11Device* pD3DDevice, LPCWSTR vertexShader
 int Material::createPixelShader( ID3D11Device* pD3DDevice, LPCWSTR pixelShader )
 {
 	ID3DBlob* pCompiledCode = nullptr;
-	HRESULT hr = D3DCompileFromFile(
-		pixelShader, // shader filename
-		nullptr, nullptr, // optional macros & includes
-		"main", // entry point function name
-		"ps_4_0", // shader type & version
-		0, 0, // optional flags
-		&pCompiledCode, // compiled code target
-		nullptr // optional blob for all compile errors
-	);
+
+	std::wstring comp = std::wstring( pixelShader ) + L".cso";
+	HRESULT hr = D3DReadFileToBlob( comp.c_str(), &pCompiledCode );
+
+	if (FAILED( hr ))
+	{
+		std::wstring raw = std::wstring( pixelShader ) + L".hlsl";
+
+		hr = D3DCompileFromFile(
+			raw.c_str(), // shader filename
+			nullptr, nullptr, // optional macros & includes
+			"main", // entry point function name
+			"vs_4_0", // shader type & version
+			0, 0, // optional flags
+			&pCompiledCode, // compiled code target
+			nullptr // optional blob for all compile errors
+		);
+
+		if (hr == D3D11_ERROR_FILE_NOT_FOUND)
+		{
+			MessageBox( NULL, std::to_wstring( hr ).c_str(), pixelShader, 0 );
+		}
+	}
+
+
 	if (FAILED( hr )) return 46;
 
 	hr = pD3DDevice->CreatePixelShader( pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(), nullptr, &_pPixelShader );
