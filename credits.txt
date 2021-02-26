@@ -1,4 +1,14 @@
-WATER
+ASSET CREDITS
 
-MAIN TEXTURE https://www.deviantart.com/berserkitty/art/Seamless-Cartoon-styled-Water-Texture-743787929
-NORMAL MAP https://3dtextures.me/2018/11/29/water-002/
+SKYBOX TEXTURE [ https://distantlantern.itch.io/allsky-free ]
+WATER TEXTURE / NORMAL MAP [ https://3dtextures.me/2018/11/29/water-002/ ]
+OBELISK MODEL / TEXTURES [ Aqil Akbar ]
+basic geometry models done in blender
+
+CODE REFERENCES, LEARNING MATERIAL
+
+CUBE MAPPING [ https://www.braynzarsoft.net/viewtutorial/q16390-20-cube-mapping-skybox ]
+RENDER TO TEXTURE [ https://www.braynzarsoft.net/viewtutorial/q16390-35-render-to-texture ]
+MODEL IMPORT / REFELCTIONS / REFRACTION / GENERAL HOLY BIBLE [ http://www.rastertek.com/dx11tut08.html, -dx11tut20.html, -dx11tut27.html, -dx11tut29.html ]
+
+Solution also on GitHub [ https://github.com/eliasaemilian/Framework ]

@@ -17,8 +17,9 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, ID3D11Depth
 	// SET WATER HEIGHT
 	_waterHeight = -3.5f;
 
-	// INIT GLOBAL SHADER PARAMETER BUFFER
+	// INIT GLOBAL SHADER PARAMETER AND LIGHT DATA BUFFER
 	createGlobalParamsBuffer();
+	createLightDataBuffer();
 
 	// INIT CAMERA
 	XMFLOAT3 camPos = { 0.0f, 1.5f, -1.0f };	
@@ -47,14 +48,9 @@ int Scene::init( ID3D11Device* devIN, ID3D11DeviceContext* devConIN, ID3D11Depth
 
 	// INIT MATERIALS
 	initDDSMaterial( L"textures/cubemap_otherworld.DDS", L"VS_Skybox", L"PS_Skybox" );
-	initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk", L"PS_Obelisk" );
+	initMaterial( L"textures/Obelisk_low_Obelisk_BaseColor.png", L"textures/Obelisk_low_Obelisk_Normal.png", L"textures/Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk", L"PS_Obelisk" );
 	initMaterial( NULL, NULL, NULL, L"VS_Sphere", L"PS_Sphere" );
-	initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader", L"PS_WaterShader" );
-
-	//initDDSMaterial( L"textures/cubemap_otherworld.DDS", L"VS_Skybox.hlsl", L"PS_Skybox.hlsl" );
-	//initMaterial( L"Obelisk_low_Obelisk_BaseColor.png", L"Obelisk_low_Obelisk_Normal.png", L"Obelisk_low_Obelisk_Roughness.png", L"VS_Obelisk.hlsl", L"PS_Obelisk.hlsl" );
-	//initMaterial( NULL, NULL, NULL, L"VS_Sphere.hlsl", L"PS_Sphere.hlsl" );
-	//initMaterial( L"waterTex.jpg", L"water_normals.jpg", NULL, L"VS_WaterShader.hlsl", L"PS_WaterShader.hlsl" );
+	initMaterial( L"textures/waterTex.jpg", L"textures/water_normals.jpg", NULL, L"VS_WaterShader", L"PS_WaterShader" );
 
 	// SET MATERIAL PARAMS
 	XMFLOAT4 mDataSkybox[4] = {};
@@ -112,8 +108,8 @@ int Scene::initCamera( INT width, INT height, XMFLOAT3 camPos )
 void Scene::initGO( int index, bool zWrite, XMFLOAT3 pos, XMFLOAT3 rot, XMFLOAT3 scale, XMFLOAT4 MatData_FLOAT[4] )
 {
 	Gameobject* model = new Gameobject();
-	if (zWrite) _pSceneObjects.push_back( model );
-	else _pObjectsZWriteOff.push_back( model );
+	if (zWrite) _pRenderqueueOpaque.push_back( model );
+	else pRenderqueueTransparent.push_back( model );
 
 	model->init( _pDev, _pDevCon, _pCamera, _pMaterials[index], _pMeshes[index] );
 	model->SetRotation( rot );
@@ -156,7 +152,6 @@ void Scene::initMaterial( LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additi
 	_pMaterials.push_back( mat );
 
 	mat->init( _pDev, textureName, normalMap, additionalTex, vertexShader, pixelShader );
-	mat->setLight( _pDevCon, *_pLight );
 }
 
 void Scene::initDDSMaterial( LPCWSTR textureName, LPCWSTR vertexShader, LPCWSTR pixelShader )
@@ -165,7 +160,6 @@ void Scene::initDDSMaterial( LPCWSTR textureName, LPCWSTR vertexShader, LPCWSTR 
 	_pMaterials.push_back( mat );
 
 	mat->init( _pDev, textureName, NULL, NULL, vertexShader, pixelShader );
-	mat->setLight( _pDevCon, *_pLight );
 }
 
 
@@ -233,21 +227,17 @@ void Scene::update()
 	
 
 	// adjust sphere scale
-	_pObjectsZWriteOff[0]->SetScale( XMFLOAT3( scaleAdjust, scaleAdjust, scaleAdjust ));
-	_pMaterialDataZWriteOff[0]->WORLD_MATRIX = *_pObjectsZWriteOff[0]->getWorldMatrix();
+	pRenderqueueTransparent[0]->SetScale( XMFLOAT3( scaleAdjust, scaleAdjust, scaleAdjust ));
+	_pMaterialDataZWriteOff[0]->WORLD_MATRIX = *pRenderqueueTransparent[0]->getWorldMatrix();
 
 	_pLight->LightDirection = { lightDirX, lightDirY, 0.0f };
-	_pLight->AmbientColor = { 0.9f, 1.0f, 1.0f, 1.0f };
-	_pLight->DiffuseColor = { 0.98f, 0.867f, 0.945f, 1.0f };
-
-
 	_pMaterialData[0]->PARAM_FLOAT4_1.x = _timelapseCounter;
 
 	// CALL UPDATE FOR ALL OBJECTS IN SCENE
-	for (int i = 0; i < _pSceneObjects.size(); i++)
+	for (int i = 0; i < _pRenderqueueOpaque.size(); i++)
 	{
-		_pSceneObjects[i]->update( _pTime->getDeltaTime() );
-		_pMaterials[i] ->setLight( _pDevCon, *_pLight );
+		_pRenderqueueOpaque[i]->update( _pTime->getDeltaTime() );
+		//_pMaterials[i] ->setLight( _pDevCon, *_pLight );
 	}
 }
 
@@ -266,9 +256,11 @@ void Scene::ReflectionsRenderpass()
 	// RENDER SCENE OBJECTS	TO TEXTURE WITH REFLECTION VIEW MATRIX
 	_pCamera->RenderReflection( -3.5f );
 	setGlobalParameters( _pCamera->getReflectionMatrix(), _pCamera->getProjectionMatrix(), _pTime->getShaderTimeParam() );
-	for (int i = 0; i < _pSceneObjects.size() - 1; i++)
+	setLightDataBuffer();
+
+	for (int i = 0; i < _pRenderqueueOpaque.size() - 1; i++)
 	{
-		_pSceneObjects[i]->render( _pDevCon, _pMaterialData[i] );
+		_pRenderqueueOpaque[i]->render( _pDevCon, _pMaterialData[i] );
 	}
 }
 
@@ -276,6 +268,7 @@ void Scene::GeometryRenderpass()
 {
 	// SET GLOBAL PARAMETERS
 	setGlobalParameters( _pCamera->getViewMatrix(), _pCamera->getProjectionMatrix(), _pTime->getShaderTimeParam() );
+	setLightDataBuffer();
 
 	// SET REFLECTION MATRIX AND TEXTURE
 	_pPlanarReflection->setPlanarReflection( _pDevCon, _pCamera->getReflectionMatrix() );
@@ -284,17 +277,17 @@ void Scene::GeometryRenderpass()
 	_pMaterialData[1]->PARAM_FLOAT4_1.w = -100;
 
 	// RENDER ALL SCENE OBJECTS
-	for (int i = 0; i < _pSceneObjects.size(); i++)
+	for (int i = 0; i < _pRenderqueueOpaque.size(); i++)
 	{
-		_pSceneObjects[i]->render( _pDevCon, _pMaterialData[i] );
+		_pRenderqueueOpaque[i]->render( _pDevCon, _pMaterialData[i] );
 	}
 }
 
 void Scene::ZWriteOffRenderpass()
 {
-	for (int i = 0; i < _pObjectsZWriteOff.size(); i++)
+	for (int i = 0; i < pRenderqueueTransparent.size(); i++)
 	{
-		_pObjectsZWriteOff[i]->render( _pDevCon, _pMaterialDataZWriteOff[i] );
+		pRenderqueueTransparent[i]->render( _pDevCon, _pMaterialDataZWriteOff[i] );
 	}
 }
 
@@ -338,18 +331,66 @@ void Scene::setGlobalParameters( XMFLOAT4X4* view, XMFLOAT4X4* projection, XMFLO
 	_pDevCon->VSSetConstantBuffers( 0, 1, &_pGlobalParamsBuffer );
 }
 
+int Scene::createLightDataBuffer()
+{
+	D3D11_BUFFER_DESC desc = {};
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof( LightDataBuffer );
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	HRESULT hr = _pDev->CreateBuffer( &desc, nullptr, &_pLightDataBuffer );
+	if (FAILED( hr )) return 47;
+
+	return 0;
+}
+
+void Scene::setLightDataBuffer()
+{
+	D3D11_MAPPED_SUBRESOURCE data = {};
+	HRESULT hr = _pDevCon->Map( _pLightDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data );
+	if (FAILED( hr )) return;
+
+	LightDataBuffer* pBuffer = reinterpret_cast< LightDataBuffer* >( data.pData );
+	pBuffer->lightData = *_pLight;
+
+	_pDevCon->Unmap( _pLightDataBuffer, 0 );
+
+	_pDevCon->PSSetConstantBuffers( 0, 1, &_pLightDataBuffer );
+}
+
 
 // ----------------------------------------- DEINITIALIZATION ----------------------------------------------- //
 
 void Scene::deInit()
 {
-	for (int i = 0; i < _pSceneObjects.size(); i++)
+	safeRelease<ID3D11Buffer>( _pLightDataBuffer );
+	safeRelease<ID3D11Buffer>( _pGlobalParamsBuffer );
+	safeRelease<ID3D11Buffer>( _pGlobalParamsBuffer );
+	safeRelease<ID3D11Buffer>( _pGlobalParamsBuffer );
+
+	for (int i = 0; i < _pRenderqueueOpaque.size(); i++)
 	{
-		delete _pSceneObjects[i];
-		_pMeshes[i]->deInit();
-		delete _pMeshes[i];
+		delete _pRenderqueueOpaque[i];
+		delete _pMaterialData[i];
+	}
+
+	for (int i = 0; i < pRenderqueueTransparent.size(); i++)
+	{
+		delete pRenderqueueTransparent[i];
+		delete _pMaterialDataZWriteOff[i];
+	}
+
+	for (int i = 0; i < _pMaterials.size(); i++)
+	{
 		_pMaterials[i]->deInit();
 		delete _pMaterials[i];
+	}
+
+	for (int i = 0; i < _pMeshes.size(); i++)
+	{
+		_pMeshes[i]->deInit();
+		delete _pMeshes[i];
 	}
 
 	delete _pLight;

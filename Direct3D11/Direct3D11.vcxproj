@@ -178,12 +178,12 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Obelisk_low_Obelisk_BaseColor.png" />
-    <Image Include="Obelisk_low_Obelisk_Normal.png" />
-    <Image Include="Obelisk_low_Obelisk_Roughness.png" />
     <Image Include="textures\cubemap_otherworld.dds" />
-    <Image Include="waterTex.jpg" />
-    <Image Include="water_normals.jpg" />
+    <Image Include="textures\Obelisk_low_Obelisk_BaseColor.png" />
+    <Image Include="textures\Obelisk_low_Obelisk_Normal.png" />
+    <Image Include="textures\Obelisk_low_Obelisk_Roughness.png" />
+    <Image Include="textures\waterTex.jpg" />
+    <Image Include="textures\water_normals.jpg" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ColorPixelShader.hlsl">
@@ -291,6 +291,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="textures\dds1.bin" />
+    <None Include="textures\dds2.bin" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct3D11.rc" />

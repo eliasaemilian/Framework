@@ -106,22 +106,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="waterTex.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Obelisk_low_Obelisk_Normal.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="water_normals.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Obelisk_low_Obelisk_Roughness.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Obelisk_low_Obelisk_BaseColor.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="textures\cubemap_otherworld.dds" />
+    <Image Include="textures\Obelisk_low_Obelisk_BaseColor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\Obelisk_low_Obelisk_Normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\Obelisk_low_Obelisk_Roughness.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\water_normals.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\waterTex.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ColorVertexShader.hlsl">
@@ -175,6 +175,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="textures\dds2.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="textures\dds1.bin">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct3D11.rc">
@@ -182,9 +188,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="meshes\inSphere.obj" />
-    <Object Include="meshes\dome.obj" />
-    <Object Include="meshes\basicPlane.obj" />
-    <Object Include="meshes\Obelisk2.obj" />
+    <_EmbedManagedResourceFile Include="meshes\inSphere.obj" />
+    <_EmbedManagedResourceFile Include="meshes\basicPlane.obj" />
+    <_EmbedManagedResourceFile Include="meshes\dome.obj" />
+    <_EmbedManagedResourceFile Include="meshes\Obelisk2.obj" />
   </ItemGroup>
 </Project>

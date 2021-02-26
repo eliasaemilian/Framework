@@ -57,32 +57,30 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Bitmap
-//
-
-IDB_BITMAP1             BITMAP                  "bitmap1.bmp"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Texture
-//
-
-IDR_TEXTURE1            Texture                 "waterTex.jpg"
-
-IDR_TEXTURE2            Texture                 "water_normals.jpg"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // PNG
 //
 
-IDB_PNG1                PNG                     "Obelisk_low_Obelisk_Normal.png"
+IDB_PNG4                PNG                     "textures\\Obelisk_low_Obelisk_BaseColor.png"
 
-IDB_PNG2                PNG                     "Obelisk_low_Obelisk_Roughness.png"
+IDB_PNG5                PNG                     "textures\\Obelisk_low_Obelisk_Normal.png"
 
-IDB_PNG3                PNG                     "comic_waterTex.png"
+IDB_PNG6                PNG                     "textures\\Obelisk_low_Obelisk_Roughness.png"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP2             JPG                     "textures\\water_normals.jpg"
+
+IDB_BITMAP3             JPG                     "textures\\waterTex.jpg"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DDS
+//
 
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////

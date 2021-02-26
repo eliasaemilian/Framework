@@ -38,22 +38,31 @@ private:
 	void initMaterial( LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader );
 	void initDDSMaterial( LPCWSTR textureName, LPCWSTR  vertexShader, LPCWSTR pixelShader );
 
-	// GPU 
+	// GLOBAL SHADER PARAMS AND LIGHTDATA
 	int createGlobalParamsBuffer();
 	void setGlobalParameters( XMFLOAT4X4* view, XMFLOAT4X4* projection, XMFLOAT4* t );
+	int createLightDataBuffer();
+	void setLightDataBuffer();
 
 	// HELPER
 	float linLerp( float a, float b, float f );
 
 private:
 
-	// GLOBAL SHADER PARAMETERS 
+	// GLOBAL SHADER PARAMETERS [ VS BUFFER REGISTER 0]
 	ID3D11Buffer* _pGlobalParamsBuffer = nullptr;
 	struct GlobalParameters
 	{
 		XMFLOAT4X4 CameraViewMatrix;
 		XMFLOAT4X4 CameraProjectionMatrix;
-		XMFLOAT4 time; // x -> Time.y, y -> deltaTime , zw -> padding
+		XMFLOAT4 time; 
+	};
+
+	// GLOBAL LIGHTDATA [PS BUFFER REGISTER 0 ]
+	ID3D11Buffer* _pLightDataBuffer = nullptr;
+	struct LightDataBuffer
+	{
+		Light lightData;
 	};
 
 	// REFERENCES
@@ -68,17 +77,16 @@ private:
 	PlanarReflection* _pPlanarReflection;
 
 	// SCENE OBJECTS AND COMPONENTS
-	std::vector<Gameobject*> _pSceneObjects = {};
-	std::vector<Gameobject*> _pObjectsZWriteOff = {};
+	std::vector<Gameobject*> _pRenderqueueOpaque = {};
+	std::vector<Gameobject*> pRenderqueueTransparent = {};
 	std::vector<Mesh*> _pMeshes = {};
 	std::vector<Material*> _pMaterials = {};
 	std::vector<Material::MaterialBuffer*> _pMaterialData = {};
 	std::vector<Material::MaterialBuffer*> _pMaterialDataZWriteOff = {};
 
-	// WATER PARAMS
+	// WATER AND TIMELAPSE PARAMS
 	FLOAT _waterHeight = -3.5f;
 	FLOAT _waterTranslation = 0.0f;
-
 	FLOAT _timelapseCounter = 0.0f;
 };
 

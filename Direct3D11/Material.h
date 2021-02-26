@@ -23,7 +23,6 @@ public:
 public:
 	int init(ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR normalMap, LPCWSTR additionalTex, LPCWSTR  vertexShader, LPCWSTR pixelShader);
 	virtual void render( ID3D11DeviceContext* pD3DDeviceContext, MaterialBuffer* mBuf );
-	void setLight(ID3D11DeviceContext* pD3DDeviceContext, Light& lightData);
 	void deInit();
 
 protected:
@@ -37,7 +36,6 @@ protected:
 	int createNormalMap(ID3D11Device* pD3DDevice, LPCWSTR textureName );
 	int createAdditonalTexture(ID3D11Device* pD3DDevice, LPCWSTR textureName );
 	int createCubeMapTextureAndSampler(ID3D11Device* pD3DDevice, LPCWSTR textureName);
-	int createLightDataBuffer(ID3D11Device* pD3DDevice);
 
 	// shaders
 	ID3D11VertexShader* _pVertexShader = nullptr;
@@ -53,13 +51,7 @@ protected:
 	ID3D11ShaderResourceView* _pNormalMap = nullptr;
 	ID3D11ShaderResourceView* _pAdditionalTex = nullptr;
 
-
 	// BUFFERS
 	ID3D11Buffer* _pMaterialBuffer = nullptr;
-	ID3D11Buffer* _pPixelShaderBuffer = nullptr;
-	struct PixelShaderBuffer
-	{
-		Light lightData;
-	};
 };
 

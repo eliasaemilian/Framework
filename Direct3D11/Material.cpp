@@ -42,9 +42,6 @@ int Material::init( ID3D11Device* pD3DDevice, LPCWSTR textureName, LPCWSTR norma
 		if (error != 0) return error;
 	}
 
-	error = createLightDataBuffer( pD3DDevice );
-	if (error != 0) return error;
-
 	return 0;
 }
 
@@ -80,24 +77,9 @@ void Material::deInit()
 	safeRelease<ID3D11ShaderResourceView>( _pMainTexture );
 	safeRelease<ID3D11SamplerState>( _pMainSampler );
 	safeRelease<ID3D11Buffer>( _pMaterialBuffer );
-	safeRelease<ID3D11Buffer>( _pPixelShaderBuffer );
 	safeRelease<ID3D11VertexShader>( _pVertexShader );
 	safeRelease<ID3D11PixelShader>( _pPixelShader );
 	safeRelease<ID3D11InputLayout>( _pInputLayout );
-}
-
-void Material::setLight( ID3D11DeviceContext* pD3DDeviceContext, Light& lightData )
-{
-	D3D11_MAPPED_SUBRESOURCE data = {};
-	HRESULT hr = pD3DDeviceContext->Map( _pPixelShaderBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data );
-	if (FAILED( hr )) return;
-
-	PixelShaderBuffer* pBuffer = reinterpret_cast< PixelShaderBuffer* >( data.pData );
-	pBuffer->lightData = lightData;
-
-	pD3DDeviceContext->Unmap( _pPixelShaderBuffer, 0 );
-
-	pD3DDeviceContext->PSSetConstantBuffers( 0, 1, &_pPixelShaderBuffer );
 }
 
 int Material::createVertexShader( ID3D11Device* pD3DDevice, LPCWSTR vertexShader )
@@ -224,8 +206,6 @@ int Material::createMaterialBuffer( ID3D11Device* pD3DDevice )
 	return 0;
 }
 
-
-
 void Material::setMaterialBuffer( ID3D11DeviceContext* pD3DDeviceContext, XMFLOAT4X4* worldMatrix, XMFLOAT4* f1, XMFLOAT4* f2, XMFLOAT4* f3, XMFLOAT4* f4 )
 {
 	D3D11_MAPPED_SUBRESOURCE data = {};
@@ -338,18 +318,4 @@ int Material::createCubeMapTextureAndSampler( ID3D11Device* dev, LPCWSTR texture
 
 
 	return hr;
-}
-
-int Material::createLightDataBuffer( ID3D11Device* pD3DDevice )
-{
-	D3D11_BUFFER_DESC desc = {};
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.ByteWidth = sizeof( PixelShaderBuffer );
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	HRESULT hr = pD3DDevice->CreateBuffer( &desc, nullptr, &_pPixelShaderBuffer );
-	if (FAILED( hr )) return 47;
-
-	return 0;
 }
